@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { PublicHeader } from "@/components/layout/public-header";
 
 export default function HomePage() {
@@ -31,35 +29,25 @@ export default function HomePage() {
 
       <main className="relative z-10 mx-auto flex min-h-[calc(100vh-11rem)] w-full max-w-7xl flex-col items-center justify-center px-4 pb-14 pt-8 sm:px-6 sm:pb-18 lg:px-8 lg:pt-12">
         <section className="flex w-full max-w-5xl flex-col items-center text-center">
-          <p className="text-[0.96rem] font-semibold uppercase tracking-[0.2em] text-[var(--uc-teal)] sm:text-[1.05rem]">
-            IA para mujeres, mamás y chicas
-          </p>
-
           <h1 className="mt-10 max-w-5xl font-heading text-[clamp(3.4rem,8vw,5.8rem)] leading-[1.02] tracking-[-0.03em] text-[var(--uc-ink)]">
-            La Inteligencia Artificial, explicada para ti.
+            La tecnología también es para ti.
           </h1>
 
           <div className="mt-8 uc-divider" aria-hidden="true" />
 
           <p className="mt-10 max-w-5xl text-[1.45rem] leading-[1.65] text-[var(--uc-muted)] sm:text-[1.6rem]">
-            Cursos breves y claros para aprender IA a tu ritmo, sin jerga técnica, con ejemplos
-            de tu día a día y una comunidad que te acompaña en cada paso.
+            Aprende IA y herramientas digitales para trabajar mejor, ahorrar tiempo, crear y
+            cuidar a tu familia en un mundo cada vez más tecnológico.
           </p>
 
-          <div className="mt-16 grid w-full max-w-6xl gap-6">
-            <Link
-              className="uc-button-primary min-h-[6.4rem] w-full justify-center rounded-[999px] px-8 text-[1.3rem] font-semibold sm:text-[1.45rem]"
-              href="/iniciar-sesion"
-            >
-              Crear cuenta
-            </Link>
-            <Link
-              className="uc-button-secondary min-h-[6.4rem] w-full justify-center rounded-[999px] px-8 text-[1.3rem] font-semibold sm:text-[1.45rem]"
-              href="/iniciar-sesion"
-            >
-              Iniciar sesión
-            </Link>
-          </div>
+          <p className="mt-10 max-w-5xl text-[1.4rem] font-semibold leading-[1.6] text-[var(--uc-ink)] sm:text-[1.52rem]">
+            Clases en vivo con expertos de la industria, práctica real y material para seguir
+            aprendiendo a tu ritmo.
+          </p>
+
+          <p className="mt-8 max-w-4xl text-[1.15rem] leading-[1.8] text-[var(--uc-muted)] sm:text-[1.24rem]">
+            No importa si empiezas desde cero. Aquí aprendemos juntas.
+          </p>
         </section>
       </main>
     </div>
