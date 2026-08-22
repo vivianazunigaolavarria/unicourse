@@ -5,7 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 type DashboardHeaderProps = {
   eyebrow?: string;
   title: string;
-  description: string;
+  description?: string;
   firstName: string;
 };
 
@@ -19,7 +19,7 @@ export function DashboardHeader({ eyebrow, title, description, firstName }: Dash
       <div className="grid gap-2">
         {eyebrow ? <p className="uc-kicker">{eyebrow}</p> : null}
         <h1 className="font-heading text-[clamp(2.4rem,5vw,3.9rem)] leading-[1.02] tracking-[-0.03em] text-[var(--uc-ink)]">{title}</h1>
-        <p className="max-w-3xl text-base leading-8 text-[var(--uc-muted)] sm:text-lg">{description}</p>
+        {description ? <p className="max-w-3xl text-base leading-8 text-[var(--uc-muted)] sm:text-lg">{description}</p> : null}
       </div>
 
       <Link

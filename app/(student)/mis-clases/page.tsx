@@ -33,7 +33,6 @@ export default async function StudentClassesPage() {
       <DashboardHeader
         eyebrow="Clases en vivo"
         title="Tu calendario de sesiones"
-        description="Una vista tipo Google Calendar con nuestra paleta para que ubiques tus clases, guardes cada una en tu agenda y tengas el enlace de Google Meet siempre a la mano."
         firstName={viewer.first_name}
       />
 
