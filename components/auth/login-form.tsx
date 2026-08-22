@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { startTransition, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { mapAuthErrorToSpanish } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase/client";
@@ -18,7 +17,6 @@ type Message = {
 } | null;
 
 export function LoginForm({ nextPath }: LoginFormProps) {
-  const router = useRouter();
   const [supabase] = useState(() => createClient());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +32,18 @@ export function LoginForm({ nextPath }: LoginFormProps) {
   const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState("");
 
   async function getDestination(userId: string) {
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
+    const fallbackDestination = nextPath ?? "/dashboard";
+    const { data: profile, error } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
+
+    if (error) {
+      return fallbackDestination;
+    }
+
     return nextPath ?? getDashboardPathForRole(profile?.role);
+  }
+
+  function buildAuthRedirectUrl(intent: "signup" | "recovery") {
+    return `${window.location.origin}/auth/callback?intent=${intent}`;
   }
 
   async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
@@ -69,11 +77,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
     }
 
     const destination = await getDestination(data.user.id);
-
-    startTransition(() => {
-      router.replace(destination);
-      router.refresh();
-    });
+    window.location.assign(new URL(destination, window.location.origin).toString());
   }
 
   async function handleReset(event: React.FormEvent<HTMLFormElement>) {
@@ -92,7 +96,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
     setResetMessage(null);
 
     const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
-      redirectTo: `${window.location.origin}/actualizar-contrasena`,
+      redirectTo: buildAuthRedirectUrl("recovery"),
     });
 
     setIsResetPending(false);
@@ -127,7 +131,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
       type: "signup",
       email: pendingConfirmationEmail,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: buildAuthRedirectUrl("signup"),
       },
     });
 

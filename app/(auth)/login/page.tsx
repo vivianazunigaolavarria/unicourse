@@ -15,6 +15,8 @@ type LoginPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
+export const dynamic = "force-dynamic";
+
 const noticeMessages: Record<string, { title: string; description: string; tone: "info" | "success" | "error" }> = {
   "session-closed": {
     title: "Sesión cerrada",

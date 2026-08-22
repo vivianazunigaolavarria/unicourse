@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { mapAuthErrorToSpanish } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase/client";
 
 export function UpdatePasswordPanel() {
-  const router = useRouter();
   const [supabase] = useState(() => createClient());
   const [message, setMessage] = useState<{ tone: "error" | "success"; text: string } | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -87,8 +85,7 @@ export function UpdatePasswordPanel() {
     }
 
     await supabase.auth.signOut();
-    router.replace("/login?notice=password-updated");
-    router.refresh();
+    window.location.assign(new URL("/login?notice=password-updated", window.location.origin).toString());
   }
 
   return (

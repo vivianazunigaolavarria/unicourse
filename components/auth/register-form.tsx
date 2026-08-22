@@ -52,6 +52,10 @@ export function RegisterForm() {
 
   const maxBirthDate = getTodayInputValue();
 
+  function buildSignupRedirectUrl() {
+    return `${window.location.origin}/auth/callback?intent=signup`;
+  }
+
   function updateField<K extends keyof RegisterFormState>(field: K, value: RegisterFormState[K]) {
     setForm((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => {
@@ -125,13 +129,12 @@ export function RegisterForm() {
     setFormMessage(null);
 
     const trimmedEmail = form.email.trim().toLowerCase();
-    const appUrl = window.location.origin;
 
     const { data, error } = await supabase.auth.signUp({
       email: trimmedEmail,
       password: form.password,
       options: {
-        emailRedirectTo: appUrl,
+        emailRedirectTo: buildSignupRedirectUrl(),
         data: {
           first_name: form.firstName.trim(),
           last_name: form.lastName.trim(),
