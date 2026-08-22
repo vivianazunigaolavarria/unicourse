@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { mapAuthErrorToSpanish } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase/client";
+import { toBrowserAppUrl } from "@/lib/urls";
 
 export function UpdatePasswordPanel() {
   const [supabase] = useState(() => createClient());
@@ -85,7 +86,7 @@ export function UpdatePasswordPanel() {
     }
 
     await supabase.auth.signOut();
-    window.location.assign(new URL("/login?notice=password-updated", window.location.origin).toString());
+    window.location.assign(toBrowserAppUrl("/login?notice=password-updated"));
   }
 
   return (

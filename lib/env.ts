@@ -34,7 +34,7 @@ export function getAppUrl() {
     process.env.VERCEL_URL;
 
   if (!configuredUrl) {
-    return "http://localhost:3000";
+    return "https://www.unicourse.training";
   }
 
   if (configuredUrl.startsWith("http://") || configuredUrl.startsWith("https://")) {

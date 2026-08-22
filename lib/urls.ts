@@ -1,3 +1,5 @@
+const DEFAULT_APP_ORIGIN = "https://www.unicourse.training";
+
 export function withQuery(pathname: string, entries: Record<string, string | null | undefined>) {
   const params = new URLSearchParams();
 
@@ -28,4 +30,38 @@ export function slugify(value: string) {
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+export function getCanonicalAppOrigin() {
+  const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL?.trim();
+
+  if (!configuredOrigin) {
+    return DEFAULT_APP_ORIGIN;
+  }
+
+  return configuredOrigin.startsWith("http://") || configuredOrigin.startsWith("https://")
+    ? configuredOrigin
+    : `https://${configuredOrigin}`;
+}
+
+export function getBrowserAppOrigin() {
+  if (typeof window === "undefined") {
+    return getCanonicalAppOrigin();
+  }
+
+  const browserOrigin = window.location.origin;
+
+  if (
+    browserOrigin.includes("localhost") ||
+    browserOrigin.includes("127.0.0.1") ||
+    browserOrigin.includes("0.0.0.0")
+  ) {
+    return getCanonicalAppOrigin();
+  }
+
+  return browserOrigin;
+}
+
+export function toBrowserAppUrl(pathname: string) {
+  return new URL(pathname, getBrowserAppOrigin()).toString();
 }

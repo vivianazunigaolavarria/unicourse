@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { countrySuggestions, occupationOptions } from "@/lib/account";
 import { mapAuthErrorToSpanish } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase/client";
+import { toBrowserAppUrl } from "@/lib/urls";
 
 type RegisterFormState = {
   firstName: string;
@@ -53,7 +54,7 @@ export function RegisterForm() {
   const maxBirthDate = getTodayInputValue();
 
   function buildSignupRedirectUrl() {
-    return `${window.location.origin}/auth/callback?intent=signup`;
+    return toBrowserAppUrl("/auth/callback?intent=signup");
   }
 
   function updateField<K extends keyof RegisterFormState>(field: K, value: RegisterFormState[K]) {

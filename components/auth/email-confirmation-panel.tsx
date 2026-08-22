@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { mapAuthErrorToSpanish } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase/client";
+import { toBrowserAppUrl } from "@/lib/urls";
 
 type Message = {
   tone: "error" | "success";
@@ -48,7 +49,7 @@ export function EmailConfirmationPanel() {
       type: "signup",
       email: trimmedEmail,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: toBrowserAppUrl("/auth/callback?intent=signup"),
       },
     });
 

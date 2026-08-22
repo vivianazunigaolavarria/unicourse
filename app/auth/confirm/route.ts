@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const fallbackPath = type === "recovery" ? "/actualizar-contrasena" : "/cuenta-lista";
+  const fallbackPath = type === "recovery" ? "/actualizar-contrasena" : "/dashboard";
   const nextPath = resolveNextPath(searchParams.get("next") ?? searchParams.get("redirect_to"), origin, fallbackPath);
 
   if (!tokenHash || !type) {

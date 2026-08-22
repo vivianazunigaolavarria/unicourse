@@ -6,7 +6,8 @@ import { NoticeBanner } from "@/components/ui/notice-banner";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusChip } from "@/components/ui/status-chip";
 import { createClient } from "@/lib/supabase/client";
-import { withQuery } from "@/lib/urls";
+import { getDashboardPathForRole } from "@/lib/profile";
+import { toBrowserAppUrl, withQuery } from "@/lib/urls";
 
 type CallbackIntent = "signup" | "recovery";
 
@@ -34,7 +35,7 @@ export default function AuthCallbackPage() {
 
     async function finishAuth() {
       const redirectTo = (path: string) => {
-        window.location.replace(new URL(path, window.location.origin).toString());
+        window.location.replace(toBrowserAppUrl(path));
       };
       const url = new URL(window.location.href);
       const intent = (url.searchParams.get("intent") === "recovery" ? "recovery" : "signup") as CallbackIntent;
@@ -61,8 +62,10 @@ export default function AuthCallbackPage() {
         return;
       }
 
+      const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+
       setMessage("Tu correo ya quedó confirmado. Estamos terminando de cerrar tu acceso...");
-      redirectTo("/cuenta-lista");
+      redirectTo(getDashboardPathForRole(profile?.role));
     }
 
     void finishAuth();

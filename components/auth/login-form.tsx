@@ -6,6 +6,7 @@ import { useState } from "react";
 import { mapAuthErrorToSpanish } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase/client";
 import { getDashboardPathForRole } from "@/lib/profile";
+import { toBrowserAppUrl } from "@/lib/urls";
 
 type LoginFormProps = {
   nextPath?: string | null;
@@ -43,7 +44,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
   }
 
   function buildAuthRedirectUrl(intent: "signup" | "recovery") {
-    return `${window.location.origin}/auth/callback?intent=${intent}`;
+    return toBrowserAppUrl(`/auth/callback?intent=${intent}`);
   }
 
   async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
@@ -77,7 +78,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
     }
 
     const destination = await getDestination(data.user.id);
-    window.location.assign(new URL(destination, window.location.origin).toString());
+    window.location.assign(toBrowserAppUrl(destination));
   }
 
   async function handleReset(event: React.FormEvent<HTMLFormElement>) {
