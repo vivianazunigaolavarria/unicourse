@@ -1,0 +1,128 @@
+@import url("https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=Poppins:wght@300;400;500;600&display=swap");
+@import "tailwindcss";
+
+:root {
+  --uc-violet: #6b5ce0;
+  --uc-violet-light: #c9a6f2;
+  --uc-teal: #2fa98f;
+  --uc-teal-light: #7fdfc9;
+  --uc-amber: #e0954a;
+  --uc-amber-light: #f5c98a;
+  --uc-ink: #2b2140;
+  --uc-muted: #7a6f90;
+  --uc-cream: #faf7fc;
+  --uc-border: #e4ddf2;
+  --uc-page: #f6f0fb;
+  --uc-page-alt: #efe6f7;
+  --background: #f6f0fb;
+  --foreground: #2b2140;
+  --font-heading: "Lora";
+  --font-body: "Poppins";
+}
+
+@theme inline {
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--uc-ink);
+  font-family: var(--font-body), sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(201, 166, 242, 0.44), transparent 26%),
+    radial-gradient(circle at bottom right, rgba(127, 223, 201, 0.20), transparent 28%),
+    linear-gradient(180deg, var(--uc-page), var(--uc-page-alt));
+}
+
+a {
+  color: inherit;
+}
+
+.font-heading {
+  font-family: var(--font-heading), serif;
+}
+
+.uc-surface {
+  border: 1px solid rgba(107, 92, 224, 0.14);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 24px 64px rgba(58, 37, 105, 0.10);
+  backdrop-filter: blur(14px);
+}
+
+.uc-button-primary,
+.uc-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.9rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.uc-button-primary {
+  background: var(--uc-violet);
+  color: white;
+  box-shadow: 0 16px 30px rgba(107, 92, 224, 0.20);
+}
+
+.uc-button-secondary {
+  border: 1px solid rgba(107, 92, 224, 0.18);
+  background: transparent;
+  color: var(--uc-violet);
+}
+
+.uc-button-primary:hover,
+.uc-button-secondary:hover {
+  transform: translateY(-1px);
+}
+
+.uc-button-primary:focus-visible,
+.uc-button-secondary:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--uc-teal);
+  outline-offset: 2px;
+}
+
+.uc-kicker {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--uc-muted);
+}
+
+.uc-divider {
+  height: 4px;
+  width: 72px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--uc-violet), var(--uc-teal), var(--uc-amber));
+}
+
+.uc-grid-auto {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}

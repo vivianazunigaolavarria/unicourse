@@ -1,0 +1,14 @@
+.next
+node_modules
+.pnpm-store
+.DS_Store
+.env
+.env.local
+.env.production
+dist
+coverage
+*.log
+*.swp
+*.tsbuildinfo
+supabase/.temp
+supabase/.branches
