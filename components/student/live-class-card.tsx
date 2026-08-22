@@ -19,6 +19,7 @@ type LiveClassCardProps = {
 export function LiveClassCard({ liveClass }: LiveClassCardProps) {
   const calendarUrl = buildGoogleCalendarUrl(liveClass);
   const access = getLiveClassAccessDetails(liveClass);
+  const meetLabel = liveClass.canJoin ? "Entrar a Google Meet" : "Abrir enlace de Meet";
 
   return (
     <div className="grid gap-5 rounded-[28px] border border-[var(--uc-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,247,252,0.94))] p-6">
@@ -67,9 +68,9 @@ export function LiveClassCard({ liveClass }: LiveClassCardProps) {
         <Link href={calendarUrl} target="_blank" rel="noreferrer" className="uc-button-secondary">
           Agregar a Google Calendar
         </Link>
-        {liveClass.canJoin && liveClass.meeting_url ? (
+        {liveClass.meeting_url ? (
           <Link href={liveClass.meeting_url} target="_blank" rel="noreferrer" className="uc-button-primary">
-            Entrar a la clase
+            {meetLabel}
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         ) : (
