@@ -24,25 +24,24 @@ export function AuthPanel({ nextPath }: AuthPanelProps) {
   const [signInMessage, setSignInMessage] = useState<AuthMessage>(null);
   const [signUpMessage, setSignUpMessage] = useState<AuthMessage>(null);
   const [resetMessage, setResetMessage] = useState<AuthMessage>(null);
+  const [resendMessage, setResendMessage] = useState<AuthMessage>(null);
   const [isSignInPending, setIsSignInPending] = useState(false);
   const [isSignUpPending, setIsSignUpPending] = useState(false);
   const [isResetPending, setIsResetPending] = useState(false);
+  const [isResendPending, setIsResendPending] = useState(false);
+  const [lastSignInEmail, setLastSignInEmail] = useState("");
 
   async function loadDashboardPath(userId: string) {
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
     return getDashboardPathForRole(profile?.role);
   }
 
-  function getSignupConfirmationPath() {
-    if (!nextPath || nextPath.startsWith("/admin")) {
-      return "/mis-cursos";
-    }
-
-    return nextPath;
-  }
-
   function getAppOrigin() {
     return window.location.origin;
+  }
+
+  function getAuthCallbackUrl(intent: "signup" | "recovery") {
+    return new URL(withQuery("/auth/callback", { intent }), getAppOrigin()).toString();
   }
 
   async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
@@ -53,6 +52,8 @@ export function AuthPanel({ nextPath }: AuthPanelProps) {
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
+    setLastSignInEmail(email);
+    setResendMessage(null);
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -60,7 +61,10 @@ export function AuthPanel({ nextPath }: AuthPanelProps) {
       setIsSignInPending(false);
       setSignInMessage({
         tone: "error",
-        text: error?.message ?? "No pudimos iniciar sesión con esos datos.",
+        text:
+          error?.message?.toLowerCase().includes("email not confirmed")
+            ? "Tu correo todavía no está confirmado. Puedes pedir un enlace nuevo aquí mismo."
+            : error?.message ?? "No pudimos iniciar sesión con esos datos.",
       });
       return;
     }
@@ -82,7 +86,7 @@ export function AuthPanel({ nextPath }: AuthPanelProps) {
     const email = String(formData.get("signup_email") ?? "").trim();
     const password = String(formData.get("signup_password") ?? "");
 
-    const redirectUrl = new URL(withQuery("/auth/confirm", { next: getSignupConfirmationPath() }), getAppOrigin()).toString();
+    const redirectUrl = getAuthCallbackUrl("signup");
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -133,7 +137,7 @@ export function AuthPanel({ nextPath }: AuthPanelProps) {
 
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("reset_email") ?? "").trim();
-    const redirectTo = new URL(withQuery("/auth/confirm", { next: "/actualizar-contrasena" }), getAppOrigin()).toString();
+    const redirectTo = getAuthCallbackUrl("recovery");
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
 
@@ -152,6 +156,42 @@ export function AuthPanel({ nextPath }: AuthPanelProps) {
       text: "Te enviamos un correo con el enlace para restablecer tu contraseña.",
     });
     event.currentTarget.reset();
+  }
+
+  async function handleResendConfirmation() {
+    if (!lastSignInEmail) {
+      setResendMessage({
+        tone: "error",
+        text: "Escribe tu correo en el formulario de acceso para poder reenviar la confirmación.",
+      });
+      return;
+    }
+
+    setIsResendPending(true);
+    setResendMessage(null);
+
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: lastSignInEmail,
+      options: {
+        emailRedirectTo: getAuthCallbackUrl("signup"),
+      },
+    });
+
+    setIsResendPending(false);
+
+    if (error) {
+      setResendMessage({
+        tone: "error",
+        text: error.message,
+      });
+      return;
+    }
+
+    setResendMessage({
+      tone: "success",
+      text: "Te enviamos un nuevo correo de confirmación.",
+    });
   }
 
   return (
@@ -196,6 +236,19 @@ export function AuthPanel({ nextPath }: AuthPanelProps) {
             <p className={signInMessage.tone === "error" ? "text-sm text-[#a9631f]" : "text-sm text-[var(--uc-teal)]"}>
               {signInMessage.text}
             </p>
+          ) : null}
+
+          {signInMessage?.text.includes("correo todavía no está confirmado") ? (
+            <div className="grid gap-3">
+              <button className="uc-button-secondary justify-center" disabled={isResendPending} onClick={handleResendConfirmation} type="button">
+                {isResendPending ? "Reenviando..." : "Reenviar correo de confirmación"}
+              </button>
+              {resendMessage ? (
+                <p className={resendMessage.tone === "error" ? "text-sm text-[#a9631f]" : "text-sm text-[var(--uc-teal)]"}>
+                  {resendMessage.text}
+                </p>
+              ) : null}
+            </div>
           ) : null}
 
           <button className="uc-button-primary mt-2 justify-center" disabled={isSignInPending} type="submit">
