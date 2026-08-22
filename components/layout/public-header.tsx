@@ -1,40 +1,19 @@
 import Link from "next/link";
 
-import { publicNavigation } from "@/content/copy/es-mx";
-import { SignOutForm } from "@/components/auth/sign-out-form";
-import { Logo } from "@/components/layout/logo";
-import { getOptionalViewer } from "@/lib/auth";
-import { getDashboardPathForRole } from "@/lib/profile";
+import { PublicWordmark } from "@/components/layout/public-wordmark";
 
-export async function PublicHeader() {
-  const viewer = await getOptionalViewer();
-
+export function PublicHeader() {
   return (
-    <header className="uc-surface sticky top-0 z-20 mx-auto mt-5 flex w-full max-w-7xl items-center justify-between gap-6 rounded-[28px] px-5 py-4">
-      <Logo />
-      <nav className="hidden items-center gap-2 md:flex">
-        {publicNavigation.map((item) => (
-          <Link
-            key={item.href}
-            className="rounded-full px-4 py-2 text-sm text-[var(--uc-ink)] transition hover:bg-[rgba(107,92,224,0.08)] hover:text-[var(--uc-violet)]"
-            href={item.href}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
-      {viewer ? (
-        <div className="hidden items-center gap-3 md:flex">
-          <Link className="uc-button-primary" href={getDashboardPathForRole(viewer.role)}>
-            Ir a mi panel
-          </Link>
-          <SignOutForm label="Salir" />
-        </div>
-      ) : (
-        <Link className="uc-button-primary hidden md:inline-flex" href="/iniciar-sesion">
-          Entrar
+    <header className="relative z-10 flex flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12 lg:py-8">
+      <PublicWordmark />
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
+        <Link className="uc-button-secondary sm:min-w-[10rem]" href="/iniciar-sesion">
+          Iniciar sesión
         </Link>
-      )}
+        <Link className="uc-button-primary sm:min-w-[11.5rem]" href="/iniciar-sesion">
+          Crear mi cuenta
+        </Link>
+      </div>
     </header>
   );
 }

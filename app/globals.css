@@ -1,23 +1,25 @@
-@import url("https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=Poppins:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 :root {
-  --uc-violet: #6b5ce0;
-  --uc-violet-light: #c9a6f2;
-  --uc-teal: #2fa98f;
-  --uc-teal-light: #7fdfc9;
-  --uc-amber: #e0954a;
-  --uc-amber-light: #f5c98a;
-  --uc-ink: #2b2140;
-  --uc-muted: #7a6f90;
-  --uc-cream: #faf7fc;
-  --uc-border: #e4ddf2;
-  --uc-page: #f6f0fb;
-  --uc-page-alt: #efe6f7;
-  --background: #f6f0fb;
-  --foreground: #2b2140;
-  --font-heading: "Lora";
-  --font-body: "Poppins";
+  --uc-violet: #5f3f53;
+  --uc-violet-light: #d8c0d0;
+  --uc-teal: #456b6f;
+  --uc-teal-light: #b4d2cf;
+  --uc-amber: #b69163;
+  --uc-amber-light: #e8d3b5;
+  --uc-ink: #2f2130;
+  --uc-muted: #6c5a69;
+  --uc-cream: #fff9f4;
+  --uc-border: rgba(95, 63, 83, 0.16);
+  --uc-page: #fbf5f0;
+  --uc-page-alt: #f4ebf1;
+  --uc-page-soft: #f7eff4;
+  --uc-plum-deep: #472639;
+  --uc-gold-soft: #c5a173;
+  --uc-line: rgba(95, 63, 83, 0.14);
+  --background: #fbf5f0;
+  --foreground: #2f2130;
 }
 
 @theme inline {
@@ -41,13 +43,40 @@ body {
   color: var(--uc-ink);
   font-family: var(--font-body), sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(201, 166, 242, 0.44), transparent 26%),
-    radial-gradient(circle at bottom right, rgba(127, 223, 201, 0.20), transparent 28%),
+    radial-gradient(circle at 12% 10%, rgba(216, 192, 208, 0.72), transparent 24%),
+    radial-gradient(circle at 88% 16%, rgba(197, 161, 115, 0.16), transparent 18%),
+    radial-gradient(circle at 82% 82%, rgba(180, 210, 207, 0.36), transparent 22%),
     linear-gradient(180deg, var(--uc-page), var(--uc-page-alt));
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 26%),
+    radial-gradient(circle at 22% 28%, rgba(255, 255, 255, 0.3), transparent 20%),
+    radial-gradient(circle at 68% 62%, rgba(255, 255, 255, 0.12), transparent 24%);
+  opacity: 0.9;
+  z-index: -1;
 }
 
 a {
   color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(197, 161, 115, 0.22);
 }
 
 .font-heading {
@@ -55,9 +84,9 @@ a {
 }
 
 .uc-surface {
-  border: 1px solid rgba(107, 92, 224, 0.14);
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 24px 64px rgba(58, 37, 105, 0.10);
+  border: 1px solid var(--uc-line);
+  background: linear-gradient(180deg, rgba(255, 251, 248, 0.92), rgba(255, 255, 255, 0.78));
+  box-shadow: 0 28px 80px rgba(71, 38, 57, 0.08);
   backdrop-filter: blur(14px);
 }
 
@@ -68,31 +97,44 @@ a {
   justify-content: center;
   gap: 0.5rem;
   border-radius: 999px;
-  padding: 0.9rem 1.25rem;
-  font-size: 0.95rem;
-  font-weight: 500;
+  padding: 0.95rem 1.4rem;
+  font-size: 0.96rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   text-decoration: none;
   transition:
     transform 160ms ease,
     border-color 160ms ease,
-    background-color 160ms ease;
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .uc-button-primary {
-  background: var(--uc-violet);
+  border: 1px solid rgba(71, 38, 57, 0.1);
+  background: var(--uc-plum-deep);
   color: white;
-  box-shadow: 0 16px 30px rgba(107, 92, 224, 0.20);
+  box-shadow: 0 16px 38px rgba(71, 38, 57, 0.18);
 }
 
 .uc-button-secondary {
-  border: 1px solid rgba(107, 92, 224, 0.18);
-  background: transparent;
-  color: var(--uc-violet);
+  border: 1px solid rgba(95, 63, 83, 0.18);
+  background: rgba(255, 251, 248, 0.78);
+  color: var(--uc-plum-deep);
 }
 
 .uc-button-primary:hover,
 .uc-button-secondary:hover {
   transform: translateY(-1px);
+}
+
+.uc-button-primary:hover {
+  box-shadow: 0 20px 42px rgba(71, 38, 57, 0.24);
+}
+
+.uc-button-secondary:hover {
+  border-color: rgba(95, 63, 83, 0.3);
+  background: rgba(255, 251, 248, 0.94);
 }
 
 .uc-button-primary:disabled,
@@ -109,24 +151,24 @@ input:focus-visible,
 textarea:focus-visible,
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid var(--uc-teal);
-  outline-offset: 2px;
+  outline: 2px solid rgba(197, 161, 115, 0.9);
+  outline-offset: 3px;
 }
 
 .uc-kicker {
   margin: 0;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--uc-muted);
 }
 
 .uc-divider {
-  height: 4px;
-  width: 72px;
+  height: 1px;
+  width: 96px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--uc-violet), var(--uc-teal), var(--uc-amber));
+  background: linear-gradient(90deg, rgba(95, 63, 83, 0.7), rgba(197, 161, 115, 0.74), rgba(180, 210, 207, 0.58));
 }
 
 .uc-grid-auto {
@@ -140,13 +182,23 @@ a:focus-visible {
   width: 100%;
   border: 1px solid var(--uc-border);
   border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 251, 248, 0.95);
   color: var(--uc-ink);
   padding: 0.9rem 1rem;
   font: inherit;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .uc-textarea {
   min-height: 7rem;
   resize: vertical;
+}
+
+.uc-input:focus-visible,
+.uc-textarea:focus-visible {
+  border-color: rgba(197, 161, 115, 0.75);
+  box-shadow: 0 0 0 4px rgba(197, 161, 115, 0.14);
+  outline: none;
 }

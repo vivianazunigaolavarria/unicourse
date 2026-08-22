@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "UniCourse",
-  description: "Plataforma multicurso para alumnas, profesoras y administración.",
+  description: "Plataforma educativa para aprender inteligencia artificial y herramientas tecnológicas con claridad, calma y aplicaciones reales.",
 };
 
 export default function RootLayout({
