@@ -3,12 +3,13 @@ import { SectionCard } from "@/components/ui/section-card";
 import { StatusChip } from "@/components/ui/status-chip";
 import { UpdatePasswordPanel } from "@/components/auth/update-password-panel";
 import { isSupabaseConfigured } from "@/lib/env";
+import { AuthPageFrame } from "@/components/auth/auth-page-frame";
 
 export default function UpdatePasswordPage() {
   const supabaseReady = isSupabaseConfigured();
 
   return (
-    <main className="mx-auto grid min-h-screen w-full max-w-5xl place-items-center px-4 py-10">
+    <AuthPageFrame>
       <SectionCard className="grid w-full gap-8 rounded-[34px] p-8 lg:grid-cols-[minmax(0,1fr)_440px] lg:p-10">
         <div className="grid gap-5">
           <StatusChip tone="teal">Recuperación segura</StatusChip>
@@ -25,8 +26,8 @@ export default function UpdatePasswordPage() {
           ) : null}
         </div>
 
-        {supabaseReady ? <UpdatePasswordPanel fallbackPath="/mis-cursos" /> : null}
+        {supabaseReady ? <UpdatePasswordPanel /> : null}
       </SectionCard>
-    </main>
+    </AuthPageFrame>
   );
 }

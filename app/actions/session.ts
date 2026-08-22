@@ -8,5 +8,5 @@ import { withQuery } from "@/lib/urls";
 export async function signOutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect(withQuery("/iniciar-sesion", { notice: "session-closed" }));
+  redirect(withQuery("/login", { notice: "session-closed" }));
 }

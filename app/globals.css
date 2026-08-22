@@ -189,11 +189,21 @@ a:focus-visible {
   resize: vertical;
 }
 
+.uc-checkbox {
+  accent-color: var(--uc-violet);
+}
+
 .uc-input:focus-visible,
 .uc-textarea:focus-visible {
   border-color: var(--uc-teal);
   box-shadow: 0 0 0 4px rgba(47, 169, 143, 0.12);
   outline: none;
+}
+
+.uc-helper-text {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--uc-muted);
 }
 
 .uc-callout {

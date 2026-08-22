@@ -1,23 +1,64 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { mapAuthErrorToSpanish } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase/client";
-import { getDashboardPathForRole } from "@/lib/profile";
 
-type UpdatePasswordPanelProps = {
-  fallbackPath: string;
-};
-
-export function UpdatePasswordPanel({ fallbackPath }: UpdatePasswordPanelProps) {
+export function UpdatePasswordPanel() {
   const router = useRouter();
   const [supabase] = useState(() => createClient());
   const [message, setMessage] = useState<{ tone: "error" | "success"; text: string } | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const [hasRecoverySession, setHasRecoverySession] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (isMounted) {
+        setHasRecoverySession(Boolean(session?.user));
+      }
+    }
+
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) {
+        return;
+      }
+
+      if (event === "PASSWORD_RECOVERY" || event === "INITIAL_SESSION" || event === "SIGNED_IN") {
+        setHasRecoverySession(Boolean(session?.user));
+      }
+
+      if (event === "SIGNED_OUT") {
+        setHasRecoverySession(false);
+      }
+    });
+
+    void loadSession();
+
+    return () => {
+      isMounted = false;
+      data.subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!hasRecoverySession) {
+      setMessage({
+        tone: "error",
+        text: "Este enlace ya no es válido. Solicita uno nuevo desde el inicio de sesión.",
+      });
+      return;
+    }
+
     setIsPending(true);
     setMessage(null);
 
@@ -41,29 +82,13 @@ export function UpdatePasswordPanel({ fallbackPath }: UpdatePasswordPanelProps) 
 
     if (error) {
       setIsPending(false);
-      setMessage({ tone: "error", text: error.message });
+      setMessage({ tone: "error", text: mapAuthErrorToSpanish(error, "No pudimos actualizar tu contraseña. Intenta nuevamente.") });
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      startTransition(() => {
-        router.replace("/iniciar-sesion?notice=password-updated");
-        router.refresh();
-      });
-      return;
-    }
-
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-    const destination = getDashboardPathForRole(profile?.role) || fallbackPath;
-
-    startTransition(() => {
-      router.replace(destination);
-      router.refresh();
-    });
+    await supabase.auth.signOut();
+    router.replace("/login?notice=password-updated");
+    router.refresh();
   }
 
   return (
@@ -72,9 +97,13 @@ export function UpdatePasswordPanel({ fallbackPath }: UpdatePasswordPanelProps) 
         <p className="uc-kicker">Nueva contraseña</p>
         <h2 className="font-heading text-3xl text-[var(--uc-ink)]">Protege tu acceso</h2>
         <p className="text-sm leading-7 text-[var(--uc-muted)]">
-          Usa una contraseña nueva para cerrar este proceso y volver a tu panel.
+          Usa una contraseña nueva para cerrar este proceso y volver a entrar con tranquilidad.
         </p>
       </div>
+
+      {hasRecoverySession === false ? (
+        <p className="text-sm text-[#a9631f]">No encontramos una sesión de recuperación activa. Pide un enlace nuevo desde `/login`.</p>
+      ) : null}
 
       <label className="grid gap-2 text-sm font-medium text-[var(--uc-ink)]">
         Nueva contraseña
@@ -88,7 +117,7 @@ export function UpdatePasswordPanel({ fallbackPath }: UpdatePasswordPanelProps) 
 
       {message ? <p className={message.tone === "error" ? "text-sm text-[#a9631f]" : "text-sm text-[var(--uc-teal)]"}>{message.text}</p> : null}
 
-      <button className="uc-button-primary justify-center" disabled={isPending} type="submit">
+      <button className="uc-button-primary justify-center" disabled={isPending || hasRecoverySession !== true} type="submit">
         {isPending ? "Guardando..." : "Guardar contraseña"}
       </button>
     </form>

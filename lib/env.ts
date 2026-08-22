@@ -3,8 +3,17 @@ type PublicSupabaseConfig = {
   publishableKey: string;
 };
 
+type AdminSupabaseConfig = {
+  url: string;
+  secretKey: string;
+};
+
 function readSupabasePublishableKey() {
   return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+}
+
+function readSupabaseSecretKey() {
+  return process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY;
 }
 
 export function getSupabasePublicConfig(): PublicSupabaseConfig | null {
@@ -37,4 +46,15 @@ export function getAppUrl() {
 
 export function isSupabaseConfigured() {
   return getSupabasePublicConfig() !== null;
+}
+
+export function getSupabaseAdminConfig(): AdminSupabaseConfig | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const secretKey = readSupabaseSecretKey();
+
+  if (!url || !secretKey) {
+    return null;
+  }
+
+  return { url, secretKey };
 }

@@ -5,15 +5,11 @@ export type NavItem = {
 
 export const publicNavigation: NavItem[] = [
   { href: "/", label: "Inicio" },
-  { href: "/iniciar-sesion", label: "Iniciar sesión" },
-  { href: "/mis-cursos", label: "Portal de alumnas" },
-  { href: "/admin", label: "Administración" },
+  { href: "/login", label: "Iniciar sesión" },
+  { href: "/registro", label: "Crear mi cuenta" },
 ];
 
 export const studentNavigation: NavItem[] = [
-  { href: "/mis-cursos", label: "Mis cursos" },
-  { href: "/mis-tareas", label: "Mis tareas" },
-  { href: "/mis-clases", label: "Mis clases" },
   { href: "/perfil", label: "Mi perfil" },
 ];
 

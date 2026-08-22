@@ -1,4 +1,5 @@
-import type { AccountStatus, AgeRange, UserRole } from "@/lib/profile";
+import { formatOccupationLabel } from "@/lib/account";
+import type { AccountStatus, AgeRange, ProfileOccupation, UserRole } from "@/lib/profile";
 
 const dateFormatter = new Intl.DateTimeFormat("es-MX", {
   dateStyle: "long",
@@ -63,6 +64,10 @@ export function formatAccountStatusLabel(status: AccountStatus | string) {
 
 export function formatAgeRangeLabel(value: AgeRange | string | null | undefined) {
   return ageRangeOptions.find((option) => option.value === value)?.label ?? "Sin dato";
+}
+
+export function formatOccupationValue(value: ProfileOccupation | string | null | undefined) {
+  return formatOccupationLabel(value);
 }
 
 export function formatEnrollmentStatusLabel(status: string) {

@@ -7,7 +7,6 @@ import { NoticeBanner } from "@/components/ui/notice-banner";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusChip } from "@/components/ui/status-chip";
 import { createClient } from "@/lib/supabase/client";
-import { getDashboardPathForRole } from "@/lib/profile";
 import { withQuery } from "@/lib/urls";
 
 type CallbackIntent = "signup" | "recovery";
@@ -41,7 +40,7 @@ export default function AuthCallbackPage() {
       const hash = window.location.hash;
 
       if (hash.includes("error=") || hash.includes("error_code=")) {
-        router.replace(withQuery("/iniciar-sesion", { notice: getNoticeFromHash(hash) }));
+        router.replace(withQuery("/login", { notice: getNoticeFromHash(hash) }));
         return;
       }
 
@@ -53,7 +52,7 @@ export default function AuthCallbackPage() {
       } = await supabase.auth.getSession();
 
       if (!session?.user) {
-        router.replace(withQuery("/iniciar-sesion", { notice: "auth-link-invalid" }));
+        router.replace(withQuery("/login", { notice: "auth-link-invalid" }));
         return;
       }
 
@@ -62,10 +61,8 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      setMessage("Tu correo ya quedó confirmado. Estamos llevando tu sesión al panel correcto...");
-
-      const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).maybeSingle();
-      router.replace(withQuery(getDashboardPathForRole(profile?.role), { notice: "email-confirmed" }));
+      setMessage("Tu correo ya quedó confirmado. Estamos terminando de cerrar tu acceso...");
+      router.replace("/cuenta-lista");
     }
 
     void finishAuth();

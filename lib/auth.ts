@@ -25,7 +25,7 @@ export async function getOptionalViewer() {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "id, first_name, last_name, display_name, email, role, country, phone, age_range, account_status, created_at, updated_at",
+      "id, first_name, last_name, display_name, email, role, country, phone, age_range, date_of_birth, occupation, account_status, created_at, updated_at",
     )
     .eq("id", userId)
     .maybeSingle();
@@ -33,11 +33,11 @@ export async function getOptionalViewer() {
   return (profile as ViewerProfile | null) ?? null;
 }
 
-export async function requireAuthenticatedViewer(nextPath = "/mis-cursos") {
+export async function requireAuthenticatedViewer(nextPath = "/perfil") {
   const viewer = await getOptionalViewer();
 
   if (!viewer) {
-    redirect(withQuery("/iniciar-sesion", { next: nextPath }));
+    redirect(withQuery("/login", { next: nextPath }));
   }
 
   return viewer;

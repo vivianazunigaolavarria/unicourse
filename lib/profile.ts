@@ -8,6 +8,18 @@ export type AgeRange =
   | "60_69"
   | "70_plus"
   | "prefer_not_to_say";
+export type ProfileOccupation =
+  | "employed_professional"
+  | "entrepreneur"
+  | "business_owner"
+  | "homemaker"
+  | "caregiver"
+  | "student"
+  | "freelancer"
+  | "career_transition"
+  | "retired"
+  | "other"
+  | "prefer_not_to_say";
 
 export type ViewerProfile = {
   id: string;
@@ -19,6 +31,8 @@ export type ViewerProfile = {
   country: string | null;
   phone: string | null;
   age_range: AgeRange | null;
+  date_of_birth: string | null;
+  occupation: ProfileOccupation | null;
   account_status: AccountStatus;
   created_at: string;
   updated_at: string;
@@ -29,7 +43,7 @@ export function isAdminRole(role: UserRole | null | undefined) {
 }
 
 export function getDashboardPathForRole(role: UserRole | null | undefined) {
-  return isAdminRole(role) ? "/admin" : "/mis-cursos";
+  return isAdminRole(role) ? "/admin" : "/perfil";
 }
 
 export function getDisplayName(profile: Pick<ViewerProfile, "display_name" | "first_name" | "last_name">) {
