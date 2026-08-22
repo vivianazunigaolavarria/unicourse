@@ -11,7 +11,7 @@ import { withQuery } from "@/lib/urls";
 
 type AuthPanelProps = {
   appUrl: string;
-  nextPath: string;
+  nextPath?: string | null;
 };
 
 type AuthMessage = {
@@ -34,6 +34,14 @@ export function AuthPanel({ appUrl, nextPath }: AuthPanelProps) {
     return getDashboardPathForRole(profile?.role);
   }
 
+  function getSignupConfirmationPath() {
+    if (!nextPath || nextPath.startsWith("/admin")) {
+      return "/mis-cursos";
+    }
+
+    return nextPath;
+  }
+
   async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSignInPending(true);
@@ -54,7 +62,7 @@ export function AuthPanel({ appUrl, nextPath }: AuthPanelProps) {
       return;
     }
 
-    const destination = nextPath || (await loadDashboardPath(data.user.id));
+    const destination = nextPath ?? (await loadDashboardPath(data.user.id));
 
     startTransition(() => {
       router.replace(destination);
@@ -71,7 +79,7 @@ export function AuthPanel({ appUrl, nextPath }: AuthPanelProps) {
     const email = String(formData.get("signup_email") ?? "").trim();
     const password = String(formData.get("signup_password") ?? "");
 
-    const redirectUrl = new URL(withQuery("/auth/confirm", { next: nextPath || "/mis-cursos" }), appUrl).toString();
+    const redirectUrl = new URL(withQuery("/auth/confirm", { next: getSignupConfirmationPath() }), appUrl).toString();
 
     const { data, error } = await supabase.auth.signUp({
       email,

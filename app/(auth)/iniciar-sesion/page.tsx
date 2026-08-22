@@ -40,11 +40,12 @@ const noticeMessages: Record<string, { title: string; description: string; tone:
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = (await searchParams) ?? {};
   const notice = readSearchParam(params.notice);
-  const nextPath = normalizeInternalPath(readSearchParam(params.next), "/mis-cursos");
+  const rawNextPath = readSearchParam(params.next);
+  const nextPath = rawNextPath ? normalizeInternalPath(rawNextPath, "/mis-cursos") : null;
   const viewer = await getOptionalViewer();
 
   if (viewer) {
-    redirect(nextPath || getDashboardPathForRole(viewer.role));
+    redirect(nextPath ?? getDashboardPathForRole(viewer.role));
   }
 
   const supabaseReady = isSupabaseConfigured();

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getDashboardPathForRole } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeInternalPath, withQuery } from "@/lib/urls";
 
@@ -23,6 +24,20 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL(withQuery("/iniciar-sesion", { notice: "auth-link-invalid" }), origin));
   }
 
-  const notice = type === "recovery" ? null : "email-confirmed";
-  return NextResponse.redirect(new URL(withQuery(nextPath, { notice }), origin));
+  if (type === "recovery") {
+    return NextResponse.redirect(new URL(nextPath, origin));
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let landingPath = "/mis-cursos";
+
+  if (user) {
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+    landingPath = getDashboardPathForRole(profile?.role);
+  }
+
+  return NextResponse.redirect(new URL(withQuery(landingPath, { notice: "email-confirmed" }), origin));
 }
