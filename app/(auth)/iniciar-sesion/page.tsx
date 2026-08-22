@@ -5,7 +5,7 @@ import { NoticeBanner } from "@/components/ui/notice-banner";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusChip } from "@/components/ui/status-chip";
 import { getOptionalViewer } from "@/lib/auth";
-import { getAppUrl, isSupabaseConfigured } from "@/lib/env";
+import { isSupabaseConfigured } from "@/lib/env";
 import { getDashboardPathForRole } from "@/lib/profile";
 import { readSearchParam } from "@/lib/search-params";
 import { normalizeInternalPath } from "@/lib/urls";
@@ -34,6 +34,16 @@ const noticeMessages: Record<string, { title: string; description: string; tone:
     title: "Correo confirmado",
     description: "Tu cuenta ya quedó validada. Ahora puedes entrar a UniCourse.",
     tone: "success",
+  },
+  "otp-expired": {
+    title: "Tu enlace ya expiró",
+    description: "Pide un correo nuevo desde UniCourse y usa el enlace más reciente para continuar.",
+    tone: "error",
+  },
+  "auth-access-denied": {
+    title: "No pudimos completar ese acceso",
+    description: "El enlace es inválido, expiró o apunta a un destino no permitido en este momento.",
+    tone: "error",
   },
 };
 
@@ -71,7 +81,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           ) : null}
         </div>
 
-        {supabaseReady ? <AuthPanel appUrl={getAppUrl()} nextPath={nextPath} /> : null}
+        {supabaseReady ? <AuthPanel nextPath={nextPath} /> : null}
       </SectionCard>
     </main>
   );

@@ -1,12 +1,31 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowRight, BookOpen, CalendarDays, Users } from "lucide-react";
 
 import { PublicHeader } from "@/components/layout/public-header";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusChip } from "@/components/ui/status-chip";
 import { isSupabaseConfigured } from "@/lib/env";
+import { readSearchParam } from "@/lib/search-params";
+import { withQuery } from "@/lib/urls";
 
-export default function HomePage() {
+type HomePageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const params = (await searchParams) ?? {};
+  const error = readSearchParam(params.error);
+  const errorCode = readSearchParam(params.error_code);
+
+  if (errorCode === "otp_expired") {
+    redirect(withQuery("/iniciar-sesion", { notice: "otp-expired" }));
+  }
+
+  if (error === "access_denied") {
+    redirect(withQuery("/iniciar-sesion", { notice: "auth-access-denied" }));
+  }
+
   const supabaseReady = isSupabaseConfigured();
 
   return (

@@ -19,10 +19,22 @@ export function getSupabasePublicConfig(): PublicSupabaseConfig | null {
 }
 
 export function getAppUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const configuredUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ??
+    process.env.VERCEL_URL;
+
+  if (!configuredUrl) {
+    return "http://localhost:3000";
+  }
+
+  if (configuredUrl.startsWith("http://") || configuredUrl.startsWith("https://")) {
+    return configuredUrl;
+  }
+
+  return `https://${configuredUrl}`;
 }
 
 export function isSupabaseConfigured() {
   return getSupabasePublicConfig() !== null;
 }
-

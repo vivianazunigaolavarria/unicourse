@@ -10,7 +10,6 @@ import { getDashboardPathForRole } from "@/lib/profile";
 import { withQuery } from "@/lib/urls";
 
 type AuthPanelProps = {
-  appUrl: string;
   nextPath?: string | null;
 };
 
@@ -19,7 +18,7 @@ type AuthMessage = {
   text: string;
 } | null;
 
-export function AuthPanel({ appUrl, nextPath }: AuthPanelProps) {
+export function AuthPanel({ nextPath }: AuthPanelProps) {
   const router = useRouter();
   const [supabase] = useState(() => createClient());
   const [signInMessage, setSignInMessage] = useState<AuthMessage>(null);
@@ -40,6 +39,10 @@ export function AuthPanel({ appUrl, nextPath }: AuthPanelProps) {
     }
 
     return nextPath;
+  }
+
+  function getAppOrigin() {
+    return window.location.origin;
   }
 
   async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
@@ -79,7 +82,7 @@ export function AuthPanel({ appUrl, nextPath }: AuthPanelProps) {
     const email = String(formData.get("signup_email") ?? "").trim();
     const password = String(formData.get("signup_password") ?? "");
 
-    const redirectUrl = new URL(withQuery("/auth/confirm", { next: getSignupConfirmationPath() }), appUrl).toString();
+    const redirectUrl = new URL(withQuery("/auth/confirm", { next: getSignupConfirmationPath() }), getAppOrigin()).toString();
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -130,7 +133,7 @@ export function AuthPanel({ appUrl, nextPath }: AuthPanelProps) {
 
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("reset_email") ?? "").trim();
-    const redirectTo = new URL(withQuery("/auth/confirm", { next: "/actualizar-contrasena" }), appUrl).toString();
+    const redirectTo = new URL(withQuery("/auth/confirm", { next: "/actualizar-contrasena" }), getAppOrigin()).toString();
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
 
