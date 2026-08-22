@@ -15,16 +15,18 @@ insert into public.profiles (
   first_name,
   last_name,
   display_name,
+  email,
   role,
   account_status,
-  age_range
+  age_range,
+  country
 )
 values
-  ('11111111-1111-1111-1111-111111111111', 'Viviana', 'Olavarria', 'Viviana', 'super_admin', 'active', '40_49'),
-  ('22222222-2222-2222-2222-222222222222', 'Laura', 'Hernández', 'Laura', 'instructor', 'active', '30_39'),
-  ('33333333-3333-3333-3333-333333333333', 'Ana', 'Pérez', 'Ana', 'student', 'active', '40_49'),
-  ('44444444-4444-4444-4444-444444444444', 'Carmen', 'Ruiz', 'Carmen', 'student', 'active', '50_59'),
-  ('55555555-5555-5555-5555-555555555555', 'María', 'López', 'María', 'student', 'active', 'prefer_not_to_say');
+  ('11111111-1111-1111-1111-111111111111', 'Viviana', 'Olavarria', 'Viviana', 'viviana@unicourse.local', 'super_admin', 'active', '40_49', 'México'),
+  ('22222222-2222-2222-2222-222222222222', 'Laura', 'Hernández', 'Laura', 'laura@unicourse.local', 'instructor', 'active', '30_39', 'México'),
+  ('33333333-3333-3333-3333-333333333333', 'Ana', 'Pérez', 'Ana', 'ana@unicourse.local', 'student', 'active', '40_49', 'México'),
+  ('44444444-4444-4444-4444-444444444444', 'Carmen', 'Ruiz', 'Carmen', 'carmen@unicourse.local', 'student', 'active', '50_59', 'México'),
+  ('55555555-5555-5555-5555-555555555555', 'María', 'López', 'María', 'maria@unicourse.local', 'student', 'active', 'prefer_not_to_say', 'México');
 
 insert into public.courses (
   id,

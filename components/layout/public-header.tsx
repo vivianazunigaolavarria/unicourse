@@ -1,9 +1,14 @@
 import Link from "next/link";
 
 import { publicNavigation } from "@/content/copy/es-mx";
+import { SignOutForm } from "@/components/auth/sign-out-form";
 import { Logo } from "@/components/layout/logo";
+import { getOptionalViewer } from "@/lib/auth";
+import { getDashboardPathForRole } from "@/lib/profile";
 
-export function PublicHeader() {
+export async function PublicHeader() {
+  const viewer = await getOptionalViewer();
+
   return (
     <header className="uc-surface sticky top-0 z-20 mx-auto mt-5 flex w-full max-w-7xl items-center justify-between gap-6 rounded-[28px] px-5 py-4">
       <Logo />
@@ -18,10 +23,18 @@ export function PublicHeader() {
           </Link>
         ))}
       </nav>
-      <Link className="uc-button-primary hidden md:inline-flex" href="/iniciar-sesion">
-        Entrar
-      </Link>
+      {viewer ? (
+        <div className="hidden items-center gap-3 md:flex">
+          <Link className="uc-button-primary" href={getDashboardPathForRole(viewer.role)}>
+            Ir a mi panel
+          </Link>
+          <SignOutForm label="Salir" />
+        </div>
+      ) : (
+        <Link className="uc-button-primary hidden md:inline-flex" href="/iniciar-sesion">
+          Entrar
+        </Link>
+      )}
     </header>
   );
 }
-

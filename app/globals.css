@@ -95,6 +95,14 @@ a {
   transform: translateY(-1px);
 }
 
+.uc-button-primary:disabled,
+.uc-button-secondary:disabled,
+a[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.55;
+  transform: none;
+}
+
 .uc-button-primary:focus-visible,
 .uc-button-secondary:focus-visible,
 input:focus-visible,
@@ -125,4 +133,20 @@ a:focus-visible {
   display: grid;
   gap: 1.25rem;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.uc-input,
+.uc-textarea {
+  width: 100%;
+  border: 1px solid var(--uc-border);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--uc-ink);
+  padding: 0.9rem 1rem;
+  font: inherit;
+}
+
+.uc-textarea {
+  min-height: 7rem;
+  resize: vertical;
 }

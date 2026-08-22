@@ -17,11 +17,20 @@ export const studentNavigation: NavItem[] = [
   { href: "/perfil", label: "Mi perfil" },
 ];
 
-export const adminNavigation: NavItem[] = [
-  { href: "/admin", label: "Panel" },
-  { href: "/admin/cursos", label: "Cursos" },
-  { href: "/admin/alumnas", label: "Alumnas" },
-];
+export function getAdminNavigation(role: "admin" | "super_admin") {
+  const items: NavItem[] = [
+    { href: "/admin", label: "Resumen" },
+    { href: "/admin/students", label: "Alumnas" },
+    { href: "/admin/courses", label: "Cursos" },
+    { href: "/admin/submissions", label: "Entregas" },
+  ];
+
+  if (role === "super_admin") {
+    items.push({ href: "/admin/admins", label: "Admins" });
+  }
+
+  return items;
+}
 
 export const studentCourses = [
   {
@@ -100,4 +109,3 @@ export const adminStudents = [
     note: "Conviene recordarle la próxima clase en vivo.",
   },
 ];
-

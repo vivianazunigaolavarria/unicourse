@@ -42,10 +42,10 @@ export default function HomePage() {
           <div className="grid gap-4">
             <div className="rounded-[26px] border border-[var(--uc-border)] bg-[linear-gradient(180deg,rgba(107,92,224,0.10),rgba(255,255,255,0.94))] p-6">
               <p className="uc-kicker">Estado actual</p>
-              <h2 className="mt-3 font-heading text-3xl">Milestone 1</h2>
+              <h2 className="mt-3 font-heading text-3xl">Module 1 listo</h2>
               <p className="mt-3 text-sm leading-7 text-[var(--uc-muted)]">
-                Estructura Next.js lista, diseño en español, shells de alumnas y administración, y
-                base preparada para conectar Supabase.
+                Autenticación real, sesiones persistentes, panel administrativo protegido y portal
+                de alumnas conectado a Supabase.
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 <StatusChip tone={supabaseReady ? "teal" : "amber"}>
@@ -88,4 +88,3 @@ export default function HomePage() {
     </div>
   );
 }
-

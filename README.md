@@ -2,15 +2,17 @@
 
 UniCourse is the new Next.js foundation for `unicourse.training`.
 
-This folder contains Milestone 1:
+This repository now contains the UniCourse foundation plus Module 1:
 
-- public landing shell
-- Spanish-first login route
-- student portal shell
-- admin shell
+- public landing page
+- Supabase Auth sign up / sign in / sign out / password recovery
+- student portal wired to real Supabase data
+- protected admin area with role-aware navigation
+- admin role management for the super admin
+- audited course creation and course-access management
 - UniCourse brand tokens extracted from the original Squarespace CSS
 - setup files for Tailwind, TypeScript, and ESLint
-- environment template for future Supabase integration
+- environment template for Supabase integration
 
 ## Stack
 
@@ -33,6 +35,7 @@ Then open:
 
 - `/`
 - `/iniciar-sesion`
+- `/actualizar-contrasena`
 - `/mis-cursos`
 - `/admin`
 
@@ -48,20 +51,34 @@ Copy `.env.example` to `.env.local` and fill in:
 
 - `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` or `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-Milestone 1 does not require these values to build, but Milestone 2 will use them for the real database, auth, and storage connection.
+The app still renders without local env vars, but the real auth and data features require the public Supabase values. The service-role key is only for protected backend or maintenance tasks and must never be exposed in the browser.
 
-## What comes next
+## Module 1 highlights
 
-Milestone 2 will add:
+- Supabase Auth with persistent SSR sessions
+- `profiles` sync from `auth.users`
+- protected `/admin`
+- searchable `/admin/students`
+- `/admin/students/[id]` detail view
+- `/admin/courses` plus `/admin/courses/new`
+- `/admin/submissions`
+- `/admin/admins` for the `super_admin`
+- `admin_audit_logs`
+- SQL bootstrap path for the first `super_admin`
 
-- reproducible Supabase/PostgreSQL schema
-- migrations
-- seed data
-- role model
-- initial RLS strategy
+## First super admin
+
+After the platform owner creates an auth account in Supabase, run the migration set and then execute:
+
+```sql
+select public.bootstrap_first_super_admin('owner@example.com');
+```
+
+Run it only once. The function refuses to create a second bootstrap super admin.
 
 ## Domain plan
 
