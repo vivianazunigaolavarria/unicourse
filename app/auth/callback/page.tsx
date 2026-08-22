@@ -38,6 +38,8 @@ export default function AuthCallbackPage() {
         window.location.replace(toBrowserAppUrl(path));
       };
       const url = new URL(window.location.href);
+      const code = url.searchParams.get("code");
+      const flowId = url.searchParams.get("sb_flow_id");
       const intent = (url.searchParams.get("intent") === "recovery" ? "recovery" : "signup") as CallbackIntent;
       const hash = window.location.hash;
 
@@ -46,8 +48,18 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      // Let Supabase parse and persist the URL fragment before we route away.
-      await supabase.auth.initialize();
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code, flowId ? { flowId } : undefined);
+
+        if (error) {
+          redirectTo(withQuery("/login", { notice: "auth-link-invalid" }));
+          return;
+        }
+      } else {
+        // Let Supabase parse and persist the URL fragment before we route away.
+        await supabase.auth.initialize();
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();

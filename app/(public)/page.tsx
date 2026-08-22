@@ -1,6 +1,34 @@
-import { PublicHeader } from "@/components/layout/public-header";
+import { redirect } from "next/navigation";
 
-export default function HomePage() {
+import { PublicHeader } from "@/components/layout/public-header";
+import { withQuery } from "@/lib/urls";
+
+type HomePageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function readSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const params = (await searchParams) ?? {};
+  const code = readSearchParam(params.code);
+  const flowId = readSearchParam(params.sb_flow_id);
+  const error = readSearchParam(params.error);
+  const errorCode = readSearchParam(params.error_code);
+
+  if (code || error || errorCode) {
+    redirect(
+      withQuery("/auth/callback", {
+        code,
+        sb_flow_id: flowId,
+        error,
+        error_code: errorCode,
+      }),
+    );
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden px-4 py-4 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
