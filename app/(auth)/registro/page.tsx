@@ -5,7 +5,6 @@ import { AuthPageFrame } from "@/components/auth/auth-page-frame";
 import { RegisterForm } from "@/components/auth/register-form";
 import { NoticeBanner } from "@/components/ui/notice-banner";
 import { SectionCard } from "@/components/ui/section-card";
-import { StatusChip } from "@/components/ui/status-chip";
 import { getOptionalViewer } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getDashboardPathForRole } from "@/lib/profile";
@@ -23,7 +22,6 @@ export default async function RegisterPage() {
     <AuthPageFrame topActions={<Link className="uc-button-secondary" href="/login">Iniciar sesión</Link>}>
       <SectionCard className="grid w-full max-w-6xl gap-8 rounded-[34px] p-8 lg:grid-cols-[minmax(0,1fr)_480px] lg:p-10">
         <div className="grid gap-5">
-          <StatusChip tone="teal">Registro real con Supabase Auth</StatusChip>
           <div className="grid gap-3">
             <h1 className="font-heading text-5xl leading-tight">Crea tu cuenta</h1>
             <p className="max-w-3xl text-lg leading-8 text-[var(--uc-muted)]">
@@ -32,14 +30,13 @@ export default async function RegisterPage() {
           </div>
 
           <div className="grid gap-3 text-[15px] leading-7 text-[var(--uc-muted)]">
-            <p>Tu cuenta quedará asociada a un perfil personal en Supabase y te enviaremos un correo real para confirmar tu acceso.</p>
             <p>Después podrás volver a iniciar sesión cuando quieras con el mismo correo y tu contraseña.</p>
           </div>
 
           {!supabaseReady ? (
             <NoticeBanner
-              title="Supabase todavía no está conectado"
-              description="Completa `NEXT_PUBLIC_SUPABASE_URL` y la llave pública antes de abrir el registro al público."
+              title="Todavía estamos terminando esta parte"
+              description="Estamos ajustando la conexión necesaria para abrir el registro al público."
               tone="error"
             />
           ) : null}

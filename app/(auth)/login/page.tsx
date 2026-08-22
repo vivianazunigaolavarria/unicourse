@@ -79,8 +79,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
           {!supabaseReady ? (
             <NoticeBanner
-              title="Falta terminar la conexión"
-              description="Configura las variables públicas de Supabase para habilitar acceso, confirmación de correo y recuperación."
+              title="Todavía estamos terminando esta parte"
+              description="Estamos ajustando la conexión necesaria para habilitar el acceso y la recuperación."
               tone="error"
             />
           ) : null}
