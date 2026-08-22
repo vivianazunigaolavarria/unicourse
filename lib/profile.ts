@@ -43,7 +43,7 @@ export function isAdminRole(role: UserRole | null | undefined) {
 }
 
 export function getDashboardPathForRole(role: UserRole | null | undefined) {
-  return isAdminRole(role) ? "/admin" : "/perfil";
+  return isAdminRole(role) ? "/admin" : "/dashboard";
 }
 
 export function getDisplayName(profile: Pick<ViewerProfile, "display_name" | "first_name" | "last_name">) {

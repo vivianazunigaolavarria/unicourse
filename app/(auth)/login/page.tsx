@@ -52,7 +52,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = (await searchParams) ?? {};
   const notice = readSearchParam(params.notice);
   const rawNextPath = readSearchParam(params.next);
-  const nextPath = rawNextPath ? normalizeInternalPath(rawNextPath, "/perfil") : null;
+  const nextPath = rawNextPath ? normalizeInternalPath(rawNextPath, "/dashboard") : null;
   const viewer = await getOptionalViewer();
 
   if (viewer) {

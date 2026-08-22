@@ -17,8 +17,8 @@ export default function AccessDeniedPage() {
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-3">
-          <Link className="uc-button-primary" href="/perfil">
-            Ir a mi perfil
+          <Link className="uc-button-primary" href="/dashboard">
+            Ir a mi dashboard
           </Link>
           <Link className="uc-button-secondary" href="/">
             Volver al inicio

@@ -1,25 +1,32 @@
-import Link from "next/link";
-
-import { SignOutForm } from "@/components/auth/sign-out-form";
-import { AuthPageFrame } from "@/components/auth/auth-page-frame";
+import { DashboardHeader } from "@/components/student/dashboard-header";
 import { StudentProfileForm } from "@/components/profile/student-profile-form";
 import { SectionCard } from "@/components/ui/section-card";
-import { StatusChip } from "@/components/ui/status-chip";
 import { requireAuthenticatedViewer } from "@/lib/auth";
 import { formatAccountStatusLabel, formatDate, formatOccupationValue } from "@/lib/labels";
-import { getDisplayName } from "@/lib/profile";
 
 export default async function ProfilePage() {
   const viewer = await requireAuthenticatedViewer("/perfil");
 
   return (
-    <AuthPageFrame topActions={<Link className="uc-button-secondary" href="/">Volver al inicio</Link>}>
-      <SectionCard className="grid w-full max-w-6xl gap-8 rounded-[34px] p-8 lg:grid-cols-[minmax(0,1fr)_460px] lg:p-10">
+    <div className="grid gap-6">
+      <DashboardHeader
+        eyebrow="Mi perfil"
+        title="Tu información personal"
+        description="Mantén tus datos básicos actualizados para que UniCourse te acompañe mejor y respete el ritmo real de tu aprendizaje."
+        firstName={viewer.first_name}
+      />
+
+      <SectionCard className="grid gap-8 rounded-[34px] p-8 lg:grid-cols-[minmax(0,1fr)_460px] lg:p-10">
         <div className="grid gap-4">
-          <StatusChip tone="teal">Perfil activo</StatusChip>
-          <h1 className="font-heading text-5xl leading-tight">Hola, {getDisplayName(viewer)}.</h1>
+          <div className="rounded-[24px] border border-[var(--uc-border)] bg-[rgba(47,169,143,0.08)] p-5">
+            <p className="uc-kicker">Perfil activo</p>
+            <p className="mt-3 text-[15px] leading-7 text-[var(--uc-muted)]">
+              Tu correo y tu rol siguen protegidos desde backend. Aquí sólo puedes editar los datos personales permitidos para tu propia cuenta.
+            </p>
+          </div>
+
           <p className="max-w-2xl text-lg leading-8 text-[var(--uc-muted)]">
-            Tu cuenta ya quedó creada y confirmada. Desde aquí puedes revisar y actualizar los datos básicos de tu perfil.
+            Desde aquí puedes revisar y actualizar los datos básicos que sí forman parte de tu perfil estudiantil.
           </p>
 
           <div className="grid gap-3 sm:grid-cols-3">
@@ -36,15 +43,6 @@ export default async function ProfilePage() {
               <p className="mt-3 text-lg text-[var(--uc-ink)]">{formatOccupationValue(viewer.occupation)}</p>
             </div>
           </div>
-
-          <div className="grid gap-3 rounded-[24px] border border-[var(--uc-border)] bg-white/78 p-5">
-            <p className="text-sm leading-7 text-[var(--uc-muted)]">
-              Tu correo y tu rol están protegidos desde backend. Aquí solo puedes editar los datos personales permitidos para tu propio perfil.
-            </p>
-            <div className="max-w-xs">
-              <SignOutForm />
-            </div>
-          </div>
         </div>
 
         <SectionCard className="grid gap-5 rounded-[28px] border border-[var(--uc-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(250,247,252,0.96))] p-6">
@@ -57,6 +55,6 @@ export default async function ProfilePage() {
           <StudentProfileForm profile={viewer} />
         </SectionCard>
       </SectionCard>
-    </AuthPageFrame>
+    </div>
   );
 }

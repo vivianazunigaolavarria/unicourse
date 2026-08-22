@@ -33,7 +33,7 @@ export async function getOptionalViewer() {
   return (profile as ViewerProfile | null) ?? null;
 }
 
-export async function requireAuthenticatedViewer(nextPath = "/perfil") {
+export async function requireAuthenticatedViewer(nextPath = "/dashboard") {
   const viewer = await getOptionalViewer();
 
   if (!viewer) {

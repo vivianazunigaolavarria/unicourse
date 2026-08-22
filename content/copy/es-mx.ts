@@ -1,6 +1,35 @@
+import type { UserRole } from "@/lib/profile";
+
 export type NavItem = {
   href: string;
   label: string;
+};
+
+export type StudentNavIcon =
+  | "home"
+  | "courses"
+  | "live"
+  | "tasks"
+  | "achievements"
+  | "profile"
+  | "settings"
+  | "students"
+  | "course-admin"
+  | "submissions"
+  | "admins";
+
+export type StudentNavItem = NavItem & {
+  icon: StudentNavIcon;
+  match?: "exact" | "startsWith";
+};
+
+export type StudentNavigationConfig = {
+  primary: StudentNavItem[];
+  administration: {
+    title: string;
+    items: StudentNavItem[];
+  } | null;
+  footer: StudentNavItem[];
 };
 
 export const publicNavigation: NavItem[] = [
@@ -9,9 +38,42 @@ export const publicNavigation: NavItem[] = [
   { href: "/registro", label: "Crear mi cuenta" },
 ];
 
-export const studentNavigation: NavItem[] = [
-  { href: "/perfil", label: "Mi perfil" },
-];
+export function getStudentNavigation(role: UserRole): StudentNavigationConfig {
+  const primary: StudentNavItem[] = [
+    { href: "/dashboard", label: "Inicio", icon: "home" },
+    { href: "/mis-cursos", label: "Mis cursos", icon: "courses" },
+    { href: "/mis-clases", label: "Clases en vivo", icon: "live" },
+    { href: "/mis-tareas", label: "Mis tareas", icon: "tasks" },
+    { href: "/logros", label: "Logros", icon: "achievements" },
+    { href: "/perfil", label: "Mi perfil", icon: "profile" },
+  ];
+
+  const administrationItems: StudentNavItem[] = [];
+
+  if (role === "admin" || role === "super_admin") {
+    administrationItems.push(
+      { href: "/admin/students", label: "Alumnas", icon: "students", match: "startsWith" },
+      { href: "/admin/courses", label: "Cursos", icon: "course-admin", match: "startsWith" },
+      { href: "/admin/submissions", label: "Entregas", icon: "submissions", match: "startsWith" },
+    );
+  }
+
+  if (role === "super_admin") {
+    administrationItems.push({ href: "/admin/admins", label: "Administradores", icon: "admins", match: "startsWith" });
+  }
+
+  return {
+    primary,
+    administration:
+      administrationItems.length > 0
+        ? {
+            title: "Administración",
+            items: administrationItems,
+          }
+        : null,
+    footer: [{ href: "/configuracion", label: "Configuración", icon: "settings" }],
+  };
+}
 
 export function getAdminNavigation(role: "admin" | "super_admin") {
   const items: NavItem[] = [
@@ -27,81 +89,3 @@ export function getAdminNavigation(role: "admin" | "super_admin") {
 
   return items;
 }
-
-export const studentCourses = [
-  {
-    title: "IA desde cero",
-    cohort: "Agosto 2026",
-    progress: 62,
-    nextStep: "Lección 5 · Prompts para atención al cliente",
-    status: "En progreso",
-  },
-  {
-    title: "Automatización simple",
-    cohort: "Octubre 2026",
-    progress: 0,
-    nextStep: "Disponible al abrir inscripciones",
-    status: "Próximamente",
-  },
-];
-
-export const studentTasks = [
-  {
-    title: "Proyecto del módulo 3",
-    dueDate: "27 de agosto de 2026",
-    status: "Pendiente",
-    summary: "Sube un archivo con tres prompts aplicados a tu negocio.",
-  },
-  {
-    title: "Ejercicio del módulo 2",
-    dueDate: "18 de agosto de 2026",
-    status: "Aprobada",
-    summary: "Ejercicio inicial aprobado por tu profesora.",
-  },
-];
-
-export const liveClasses = [
-  {
-    title: "Cómo usar IA para ahorrar tiempo",
-    date: "Martes, 25 de agosto · 7:00 p. m.",
-    teacher: "Laura Hernández",
-    action: "Entrar a la clase",
-  },
-  {
-    title: "Sesión de preguntas y práctica",
-    date: "Jueves, 3 de septiembre · 7:00 p. m.",
-    teacher: "Laura Hernández",
-    action: "Agendar recordatorio",
-  },
-];
-
-export const adminCourseOutline = [
-  { title: "Módulo 1 · Bienvenida", status: "Publicado", detail: "2 lecciones · 1 recurso" },
-  { title: "Módulo 2 · Conceptos básicos", status: "Publicado", detail: "4 lecciones · 1 tarea" },
-  { title: "Módulo 3 · Prompts útiles", status: "Editando", detail: "Lección actual: atención al cliente" },
-  { title: "Módulo 4 · Automatización simple", status: "Borrador", detail: "3 lecciones · 0 tareas" },
-];
-
-export const adminStudents = [
-  {
-    name: "Ana Pérez",
-    progress: "62%",
-    cohort: "Agosto 2026",
-    status: "Seguimiento",
-    note: "Necesita un ajuste en su segunda entrega para volver a subirla.",
-  },
-  {
-    name: "Carmen Ruiz",
-    progress: "84%",
-    cohort: "Agosto 2026",
-    status: "Muy bien",
-    note: "Participa mucho en vivo y avanza sin fricción.",
-  },
-  {
-    name: "María López",
-    progress: "38%",
-    cohort: "Octubre 2026",
-    status: "Atención",
-    note: "Conviene recordarle la próxima clase en vivo.",
-  },
-];
