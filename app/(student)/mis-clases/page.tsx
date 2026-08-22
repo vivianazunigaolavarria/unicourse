@@ -38,27 +38,14 @@ export default async function StudentClassesPage() {
       />
 
       <SectionCard className="grid gap-4 rounded-[32px] bg-[linear-gradient(135deg,rgba(107,92,224,0.1),rgba(255,255,255,0.92),rgba(47,169,143,0.08))]">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="grid gap-2">
-            <p className="uc-kicker">Calendario UniCourse</p>
-            <h2 className="font-heading text-3xl text-[var(--uc-ink)]">Una réplica clara de tu agenda de clases</h2>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <StatusChip tone={liveClasses.length > 0 ? "teal" : "violet"}>
-              {liveClasses.length > 0
-                ? `${liveClasses.length} ${liveClasses.length === 1 ? "sesión programada" : "sesiones programadas"}`
-                : "Listo para agendar"}
-            </StatusChip>
-            <a className="uc-button-secondary" href={GOOGLE_CALENDAR_HOME_URL} rel="noreferrer" target="_blank">
-              Abrir Google Calendar
-            </a>
-          </div>
+        <div className="grid gap-2">
+          <p className="uc-kicker">Calendario UniCourse</p>
+          <h2 className="font-heading text-3xl text-[var(--uc-ink)]">Agenda de clases</h2>
         </div>
 
         <p className="max-w-3xl text-base leading-7 text-[var(--uc-muted)]">
-          Cada clase vive dentro del calendario con su color, horario, curso e instructora. Desde aquí puedes abrir Google
-          Calendar, guardar la sesión con un clic y entrar directo al Google Meet correspondiente.
+          Cada clase vive dentro del calendario con su color, horario, curso e instructora. Desde aquí puedes guardar la
+          sesión con un clic y entrar directo al Google Meet correspondiente.
         </p>
       </SectionCard>
 
@@ -71,10 +58,6 @@ export default async function StudentClassesPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--uc-muted)]">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[rgba(107,92,224,0.08)] px-3 py-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-[var(--uc-violet)]" />
-                Google Calendar style
-              </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-[rgba(47,169,143,0.1)] px-3 py-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-[var(--uc-teal)]" />
                 Links de Meet
