@@ -149,18 +149,22 @@ export function LoginForm({ nextPath }: LoginFormProps) {
 
   return (
     <div className="grid gap-6">
-      <form className="grid gap-4" onSubmit={handleSignIn}>
+      <form autoComplete="off" className="grid gap-4" onSubmit={handleSignIn}>
         <label className="grid gap-2 text-sm font-medium text-[var(--uc-ink)]">
           Correo electrónico
           <input
-            autoComplete="email"
+            autoCapitalize="none"
+            autoComplete="off"
+            autoCorrect="off"
             className="uc-input"
             inputMode="email"
+            name="login_email_address"
             onChange={(event) => {
               setEmail(event.target.value);
               setSignInMessage(null);
             }}
             required
+            spellCheck={false}
             type="email"
             value={email}
           />
@@ -223,17 +227,21 @@ export function LoginForm({ nextPath }: LoginFormProps) {
         </button>
 
         {isResetOpen ? (
-          <form className="grid gap-3" onSubmit={handleReset}>
+          <form autoComplete="off" className="grid gap-3" onSubmit={handleReset}>
             <label className="grid gap-2 text-sm font-medium text-[var(--uc-ink)]">
               Correo para recuperación
               <input
-                autoComplete="email"
+                autoCapitalize="none"
+                autoComplete="off"
+                autoCorrect="off"
                 className="uc-input"
                 inputMode="email"
+                name="recovery_email_address"
                 onChange={(event) => {
                   setResetEmail(event.target.value);
                   setResetMessage(null);
                 }}
+                spellCheck={false}
                 type="email"
                 value={resetEmail}
               />

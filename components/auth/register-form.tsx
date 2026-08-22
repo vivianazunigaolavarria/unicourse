@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { countrySuggestions, occupationOptions } from "@/lib/account";
 import { mapAuthErrorToSpanish } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase/client";
-import { withQuery } from "@/lib/urls";
 
 type RegisterFormState = {
   firstName: string;
@@ -171,11 +170,11 @@ export function RegisterForm() {
       return;
     }
 
-    router.push(withQuery("/revisa-tu-correo", { email: trimmedEmail }));
+    router.push("/revisa-tu-correo");
   }
 
   return (
-    <form className="grid gap-4" noValidate onSubmit={handleSubmit}>
+    <form autoComplete="off" className="grid gap-4" noValidate onSubmit={handleSubmit}>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="grid gap-2 text-sm font-medium text-[var(--uc-ink)]">
           Nombre
@@ -207,12 +206,15 @@ export function RegisterForm() {
       <label className="grid gap-2 text-sm font-medium text-[var(--uc-ink)]">
         Correo electrónico
         <input
-          autoComplete="email"
+          autoCapitalize="none"
+          autoComplete="off"
+          autoCorrect="off"
           className="uc-input"
           inputMode="email"
-          name="email"
+          name="register_email_address"
           onChange={(event) => updateField("email", event.target.value)}
           required
+          spellCheck={false}
           type="email"
           value={form.email}
         />

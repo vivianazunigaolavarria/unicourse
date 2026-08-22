@@ -3,21 +3,17 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { obfuscateEmail } from "@/lib/account";
 import { mapAuthErrorToSpanish } from "@/lib/auth-errors";
 import { createClient } from "@/lib/supabase/client";
-
-type EmailConfirmationPanelProps = {
-  email: string | null;
-};
 
 type Message = {
   tone: "error" | "success";
   text: string;
 } | null;
 
-export function EmailConfirmationPanel({ email }: EmailConfirmationPanelProps) {
+export function EmailConfirmationPanel() {
   const [supabase] = useState(() => createClient());
+  const [email, setEmail] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [message, setMessage] = useState<Message>(null);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
@@ -35,10 +31,12 @@ export function EmailConfirmationPanel({ email }: EmailConfirmationPanelProps) {
   }, [cooldownSeconds]);
 
   async function handleResend() {
-    if (!email) {
+    const trimmedEmail = email.trim().toLowerCase();
+
+    if (!trimmedEmail) {
       setMessage({
         tone: "error",
-        text: "Primero necesitamos tu correo para volver a enviarte el enlace.",
+        text: "Escribe tu correo para volver a enviarte el enlace.",
       });
       return;
     }
@@ -48,7 +46,7 @@ export function EmailConfirmationPanel({ email }: EmailConfirmationPanelProps) {
 
     const { error } = await supabase.auth.resend({
       type: "signup",
-      email,
+      email: trimmedEmail,
       options: {
         emailRedirectTo: window.location.origin,
       },
@@ -65,6 +63,7 @@ export function EmailConfirmationPanel({ email }: EmailConfirmationPanelProps) {
     }
 
     setCooldownSeconds(60);
+    setEmail("");
     setMessage({
       tone: "success",
       text: "Te enviamos un nuevo correo de confirmación.",
@@ -73,12 +72,33 @@ export function EmailConfirmationPanel({ email }: EmailConfirmationPanelProps) {
 
   return (
     <div className="grid gap-5">
-      {email ? (
-        <div className="rounded-[22px] border border-[var(--uc-border)] bg-white/80 p-4 text-sm leading-7 text-[var(--uc-muted)]">
-          Lo enviamos a <span className="font-medium text-[var(--uc-ink)]">{obfuscateEmail(email)}</span>. Si hay un error en la dirección,
-          vuelve a <Link href="/registro">crear tu cuenta</Link> con el correo correcto.
-        </div>
-      ) : null}
+      <div className="grid gap-3 rounded-[22px] border border-[var(--uc-border)] bg-white/80 p-4 text-sm leading-7 text-[var(--uc-muted)]">
+        <p>
+          Para reenviar el enlace sin arrastrar un correo anterior, escribe aquí tu dirección otra vez.
+        </p>
+        <p>
+          Si hubo un error en la dirección original, puedes volver a <Link href="/registro">crear tu cuenta</Link> con el correo correcto.
+        </p>
+      </div>
+
+      <label className="grid gap-2 text-left text-sm font-medium text-[var(--uc-ink)]">
+        Correo electrónico
+        <input
+          autoCapitalize="none"
+          autoComplete="off"
+          autoCorrect="off"
+          className="uc-input"
+          inputMode="email"
+          name="confirmation_email_address"
+          onChange={(event) => {
+            setEmail(event.target.value);
+            setMessage(null);
+          }}
+          spellCheck={false}
+          type="email"
+          value={email}
+        />
+      </label>
 
       {message ? <p className={message.tone === "error" ? "text-sm text-[#a9631f]" : "text-sm text-[var(--uc-teal)]"}>{message.text}</p> : null}
 

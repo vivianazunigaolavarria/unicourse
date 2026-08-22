@@ -4,16 +4,10 @@ import { AuthPageFrame } from "@/components/auth/auth-page-frame";
 import { EmailConfirmationPanel } from "@/components/auth/email-confirmation-panel";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusChip } from "@/components/ui/status-chip";
-import { readSearchParam } from "@/lib/search-params";
 
-type ReviewEmailPageProps = {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-};
+export const dynamic = "force-dynamic";
 
-export default async function ReviewEmailPage({ searchParams }: ReviewEmailPageProps) {
-  const params = (await searchParams) ?? {};
-  const email = readSearchParam(params.email) ?? null;
-
+export default function ReviewEmailPage() {
   return (
     <AuthPageFrame topActions={<Link className="uc-button-secondary" href="/login">Iniciar sesión</Link>}>
       <SectionCard className="grid w-full max-w-3xl gap-6 rounded-[34px] p-8 text-center lg:p-10">
@@ -28,7 +22,7 @@ export default async function ReviewEmailPage({ searchParams }: ReviewEmailPageP
           </p>
         </div>
 
-        <EmailConfirmationPanel email={email} />
+        <EmailConfirmationPanel />
       </SectionCard>
     </AuthPageFrame>
   );
