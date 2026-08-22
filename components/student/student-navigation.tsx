@@ -5,6 +5,7 @@ import type { ComponentType } from "react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import {
+  Award,
   BookOpen,
   FolderCog,
   GraduationCap,
@@ -13,7 +14,6 @@ import {
   LogOut,
   Menu,
   Shield,
-  Sparkles,
   UserRound,
   Video,
   X,
@@ -38,7 +38,7 @@ const iconMap: Record<StudentNavIcon, ComponentType<IconProps>> = {
   courses: BookOpen,
   live: Video,
   tasks: Layers3,
-  achievements: Sparkles,
+  achievements: Award,
   profile: UserRound,
   settings: FolderCog,
   students: GraduationCap,
