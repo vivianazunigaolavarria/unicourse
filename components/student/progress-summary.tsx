@@ -68,7 +68,7 @@ export function ProgressSummary({ completedLessons, completedCourses, submittedA
       </div>
 
       <div className="relative z-10 grid gap-4">
-        <h2 className="font-heading text-[clamp(2.5rem,5vw,4.4rem)] leading-[1.02] tracking-[-0.03em] text-[var(--uc-ink)]">
+        <h2 className="font-heading text-[clamp(2.3rem,4.2vw,3.8rem)] leading-[1.04] tracking-[-0.03em] text-[var(--uc-ink)]">
           Mi progreso
         </h2>
         <p className="max-w-3xl text-[15px] leading-8 text-[var(--uc-muted)] sm:text-lg">
@@ -77,23 +77,25 @@ export function ProgressSummary({ completedLessons, completedCourses, submittedA
         </p>
       </div>
 
-      <div className="relative z-10 mt-6 grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
+      <div className="relative z-10 mt-6 grid gap-4 md:grid-cols-2">
         {metricCards.map((metric) => (
           <div
             key={metric.key}
-            className={`relative grid min-h-[214px] content-between overflow-hidden rounded-[28px] border border-[var(--uc-border)] p-5 sm:p-6 ${metric.cardClassName}`}
+            className={`relative grid min-h-[220px] gap-6 overflow-hidden rounded-[28px] border border-[var(--uc-border)] p-5 sm:min-h-[236px] sm:p-6 ${metric.cardClassName}`}
           >
             <span className={`pointer-events-none absolute right-[-1.5rem] top-[-1.25rem] h-24 w-24 rounded-full ${metric.bubbleClassName}`} />
             <span className="pointer-events-none absolute bottom-[-1.75rem] left-[-1.25rem] h-20 w-20 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.42),transparent_72%)]" />
 
-            <div className="relative z-10 grid gap-3">
-              <p className="max-w-[14ch] text-[0.95rem] font-semibold uppercase tracking-[0.24em] text-[var(--uc-muted)]">
+            <div className="relative z-10 grid gap-4">
+              <p className="max-w-[18ch] text-[0.82rem] font-semibold uppercase leading-6 tracking-[0.18em] text-[var(--uc-muted)] sm:text-[0.86rem]">
                 {metric.label}
               </p>
-              <p className={`font-heading text-6xl leading-none ${metric.valueClassName}`}>{values[metric.key]}</p>
+              <p className={`font-heading text-6xl leading-none sm:text-[4.2rem] ${metric.valueClassName}`}>{values[metric.key]}</p>
             </div>
 
-            <p className="relative z-10 max-w-[20ch] text-base leading-8 text-[var(--uc-muted)]">{metric.helper}</p>
+            <p className="relative z-10 max-w-[32ch] text-[1.02rem] leading-7 text-[var(--uc-muted)] sm:text-lg sm:leading-8">
+              {metric.helper}
+            </p>
           </div>
         ))}
       </div>
