@@ -44,8 +44,8 @@ begin
       public.compute_profile_age_range(public.parse_profile_birth_date(user_row.raw_user_meta_data ->> 'date_of_birth')),
       'student',
       case
-        when user_row.email_confirmed_at is null then 'invited'
-        else 'active'
+        when user_row.email_confirmed_at is null then 'invited'::public.account_status_enum
+        else 'active'::public.account_status_enum
       end,
       coalesce(user_row.created_at, now())
     from auth.users as user_row
@@ -65,8 +65,8 @@ begin
          country = coalesce(profile_row.country, nullif(btrim(user_row.raw_user_meta_data ->> 'country'), '')),
          account_status = case
            when profile_row.account_status in ('suspended', 'archived') then profile_row.account_status
-           when user_row.email_confirmed_at is null then 'invited'
-           else 'active'
+           when user_row.email_confirmed_at is null then 'invited'::public.account_status_enum
+           else 'active'::public.account_status_enum
          end
     from auth.users as user_row
    where user_row.id = profile_row.id;
