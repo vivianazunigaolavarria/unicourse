@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { createClient } from "@/lib/supabase/server";
 
 type EnrollmentRecord = {
@@ -98,6 +100,25 @@ type LiveClassRecord = {
 };
 
 const EMPTY_UUID = "00000000-0000-0000-0000-000000000000";
+
+const syncAuthUsersIntoProfiles = cache(async () => {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("sync_auth_users_into_profiles");
+
+  if (!error) {
+    return;
+  }
+
+  const message = error.message.toLowerCase();
+  const canSafelyIgnore =
+    message.includes("could not find the function") ||
+    message.includes("does not exist") ||
+    message.includes("only admins can sync auth users into profiles");
+
+  if (!canSafelyIgnore) {
+    console.error("Failed to sync auth users into profiles", error);
+  }
+});
 
 function takeFirst<T>(value: T | T[] | null | undefined) {
   if (Array.isArray(value)) {
@@ -326,6 +347,7 @@ function buildProgressMap(enrollments: EnrollmentRecord[], lessonTotals: Map<str
 }
 
 export async function getAdminDashboardSummary() {
+  await syncAuthUsersIntoProfiles();
   const supabase = await createClient();
   const nowIso = new Date().toISOString();
   const recentThresholdIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -379,6 +401,7 @@ export async function getAdminAssignmentOptions(courseId?: string) {
 }
 
 export async function getAdminCountryOptions() {
+  await syncAuthUsersIntoProfiles();
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
@@ -397,6 +420,7 @@ export async function listStudents(params: {
   page?: number;
   pageSize?: number;
 }) {
+  await syncAuthUsersIntoProfiles();
   const supabase = await createClient();
   const page = Math.max(params.page ?? 1, 1);
   const pageSize = params.pageSize ?? 12;
@@ -505,6 +529,7 @@ export async function listStudents(params: {
 }
 
 export async function getStudentAdminDetail(studentId: string) {
+  await syncAuthUsersIntoProfiles();
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
@@ -683,6 +708,7 @@ export async function listAdmins(search?: string) {
 }
 
 export async function listStudentsForRoleManagement(search?: string) {
+  await syncAuthUsersIntoProfiles();
   const supabase = await createClient();
   const searchPattern = getSearchPattern(search);
   let query = supabase
@@ -937,6 +963,7 @@ export async function listAdminProfiles(params: {
   page?: number;
   pageSize?: number;
 }) {
+  await syncAuthUsersIntoProfiles();
   const supabase = await createClient();
   const page = Math.max(params.page ?? 1, 1);
   const pageSize = params.pageSize ?? 12;

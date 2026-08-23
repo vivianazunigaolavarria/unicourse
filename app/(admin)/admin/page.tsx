@@ -14,14 +14,11 @@ export default async function AdminDashboardPage() {
 
   return (
     <>
-      <SectionCard className="grid gap-5 rounded-[34px] p-8 lg:grid-cols-[minmax(0,1.2fr)_320px]">
-        <div className="grid gap-4">
-          <StatusChip tone="violet">Resumen operativo</StatusChip>
-          <h1 className="font-heading text-5xl leading-tight">La operación administrativa ya vive sobre datos reales.</h1>
-          <p className="max-w-2xl text-lg leading-8 text-[var(--uc-muted)]">
-            Aquí ves el estado verdadero de UniCourse: alumnas registradas, cuentas nuevas, cursos activos,
-            próximas sesiones y la cola de entregas pendientes.
-          </p>
+      <SectionCard className="grid gap-5 rounded-[34px] p-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+        <div className="flex items-start">
+          <div className="inline-flex max-w-full rounded-full border border-[var(--uc-border)] bg-[linear-gradient(135deg,rgba(122,94,255,0.16),rgba(122,94,255,0.08))] px-8 py-5 shadow-[0_18px_45px_rgba(122,94,255,0.08)]">
+            <h1 className="font-heading text-4xl leading-none text-[var(--uc-accent)] sm:text-5xl">Resumen operativo</h1>
+          </div>
         </div>
         <div className="grid gap-3">
           <div className="rounded-[22px] border border-[var(--uc-border)] p-4">
