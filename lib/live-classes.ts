@@ -1,5 +1,12 @@
 import type { StudentLiveClassSummary } from "@/lib/data/student";
 
+type CalendarLiveClass = Pick<
+  StudentLiveClassSummary,
+  "title" | "starts_at" | "duration_minutes" | "meeting_url" | "instructor_name"
+> & {
+  course: { id: string; title: string } | { id: string; title: string; status?: string } | null;
+};
+
 const LIVE_CLASS_TIME_ZONE = "America/Mexico_City";
 const CALENDAR_WEEKDAY_LABELS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"] as const;
 
@@ -138,7 +145,7 @@ export function formatLiveClassTimeRange(startsAt: string, durationMinutes: numb
   return `${liveClassTimeFormatter.format(start)} a ${liveClassTimeFormatter.format(end)}`;
 }
 
-export function buildGoogleCalendarUrl(liveClass: StudentLiveClassSummary) {
+export function buildGoogleCalendarUrl(liveClass: CalendarLiveClass) {
   const start = getLiveClassStartDate(liveClass.starts_at);
   const end = getLiveClassEndDate(liveClass.starts_at, liveClass.duration_minutes);
   const details = [

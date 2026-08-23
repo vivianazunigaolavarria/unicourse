@@ -15,7 +15,7 @@ export default function NewCoursePage() {
 
       <SectionCard className="grid gap-4">
         <form action={createCourseAction} className="grid gap-4">
-          <input name="return_to" type="hidden" value="/admin/courses" />
+          <input name="return_to" type="hidden" value="/admin/cursos" />
 
           <div className="grid gap-4 lg:grid-cols-2">
             <label className="grid gap-2 text-sm font-medium text-[var(--uc-ink)]">

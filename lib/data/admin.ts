@@ -24,8 +24,17 @@ type StudentProfileRecord = {
   country: string | null;
   phone: string | null;
   age_range: string | null;
+  date_of_birth?: string | null;
+  occupation?: string | null;
   created_at: string;
   account_status: string;
+  role?: string;
+};
+
+type AdminDirectoryProfileRecord = StudentProfileRecord & {
+  date_of_birth: string | null;
+  occupation: string | null;
+  role: string;
 };
 
 type CourseRecord = {
@@ -61,6 +70,35 @@ type AssignmentRecord = {
   status: string;
 };
 
+type TagRecord = {
+  id: string;
+  name: string;
+  color: string | null;
+  category: string | null;
+  source: "manual" | "automatic";
+  system_key: string | null;
+};
+
+type UserTagRecord = {
+  profile_id: string;
+  created_at: string;
+  tags: TagRecord | null;
+};
+
+type LiveClassRecord = {
+  id: string;
+  course_id: string;
+  cohort_id: string | null;
+  instructor_profile_id: string;
+  title: string;
+  starts_at: string;
+  duration_minutes: number;
+  meeting_url: string | null;
+  status: string;
+};
+
+const EMPTY_UUID = "00000000-0000-0000-0000-000000000000";
+
 function takeFirst<T>(value: T | T[] | null | undefined) {
   if (Array.isArray(value)) {
     return value[0] ?? null;
@@ -73,12 +111,29 @@ function normalizeStudentProfileRecord(row: Record<string, unknown>) {
   return row as unknown as StudentProfileRecord;
 }
 
+function normalizeAdminDirectoryProfileRecord(row: Record<string, unknown>) {
+  return row as unknown as AdminDirectoryProfileRecord;
+}
+
 function normalizeEnrollmentRecord(row: Record<string, unknown>) {
   return {
     ...row,
     courses: takeFirst(row.courses as EnrollmentRecord["courses"] | EnrollmentRecord["courses"][]),
     cohorts: takeFirst(row.cohorts as EnrollmentRecord["cohorts"] | EnrollmentRecord["cohorts"][]),
   } as EnrollmentRecord;
+}
+
+function normalizeTagRecord(row: Record<string, unknown>) {
+  return row as unknown as TagRecord;
+}
+
+function normalizeUserTagRecord(row: Record<string, unknown>) {
+  const tag = takeFirst(row.tags as TagRecord | TagRecord[] | null | undefined);
+
+  return {
+    ...row,
+    tags: tag ? normalizeTagRecord(tag as unknown as Record<string, unknown>) : null,
+  } as UserTagRecord;
 }
 
 function getSearchPattern(value?: string | null) {
@@ -88,6 +143,53 @@ function getSearchPattern(value?: string | null) {
 
   const normalized = value.trim().replaceAll(",", " ");
   return `%${normalized}%`;
+}
+
+function toUniqueIds(values: Array<string | null | undefined>) {
+  return Array.from(new Set(values.filter((value): value is string => Boolean(value))));
+}
+
+function intersectIds(current: string[] | null, next: string[]) {
+  const uniqueNext = Array.from(new Set(next));
+
+  if (current === null) {
+    return uniqueNext;
+  }
+
+  const nextSet = new Set(uniqueNext);
+  return current.filter((id) => nextSet.has(id));
+}
+
+function groupTagsByProfile(rows: UserTagRecord[]) {
+  const grouped = new Map<string, Array<TagRecord & { assigned_at: string }>>();
+
+  for (const row of rows) {
+    const tag = row.tags;
+
+    if (!tag) {
+      continue;
+    }
+
+    const current = grouped.get(row.profile_id) ?? [];
+    current.push({
+      ...tag,
+      assigned_at: row.created_at,
+    });
+    grouped.set(row.profile_id, current);
+  }
+
+  for (const [profileId, tags] of grouped.entries()) {
+    tags.sort((left, right) => {
+      if (left.source !== right.source) {
+        return left.source === "automatic" ? -1 : 1;
+      }
+
+      return left.name.localeCompare(right.name, "es-MX");
+    });
+    grouped.set(profileId, tags);
+  }
+
+  return grouped;
 }
 
 async function getCourseLessonCounts(courseIds: string[]) {
@@ -225,22 +327,34 @@ function buildProgressMap(enrollments: EnrollmentRecord[], lessonTotals: Map<str
 
 export async function getAdminDashboardSummary() {
   const supabase = await createClient();
+  const nowIso = new Date().toISOString();
+  const recentThresholdIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const [
     { count: studentCount },
-    { count: courseCount },
+    { count: newAccountsCount },
+    { count: activeCourseCount },
+    { count: upcomingLiveClassCount },
     { count: submissionCount },
     { count: adminCount },
   ] = await Promise.all([
     supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "student"),
-    supabase.from("courses").select("*", { count: "exact", head: true }),
+    supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("role", "student")
+      .gte("created_at", recentThresholdIso),
+    supabase.from("courses").select("*", { count: "exact", head: true }).eq("status", "published"),
+    supabase.from("live_classes").select("*", { count: "exact", head: true }).eq("status", "published").gte("starts_at", nowIso),
     supabase.from("submissions").select("*", { count: "exact", head: true }).eq("status", "submitted"),
     supabase.from("profiles").select("*", { count: "exact", head: true }).in("role", ["admin", "super_admin"]),
   ]);
 
   return {
     studentCount: studentCount ?? 0,
-    courseCount: courseCount ?? 0,
+    newAccountsCount: newAccountsCount ?? 0,
+    activeCourseCount: activeCourseCount ?? 0,
+    upcomingLiveClassCount: upcomingLiveClassCount ?? 0,
     pendingSubmissionCount: submissionCount ?? 0,
     adminCount: adminCount ?? 0,
   };
@@ -269,7 +383,6 @@ export async function getAdminCountryOptions() {
   const { data } = await supabase
     .from("profiles")
     .select("country")
-    .eq("role", "student")
     .not("country", "is", null)
     .order("country");
 
@@ -395,9 +508,9 @@ export async function getStudentAdminDetail(studentId: string) {
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, first_name, last_name, display_name, email, country, phone, age_range, created_at, account_status")
+    .select("id, first_name, last_name, display_name, email, country, phone, age_range, date_of_birth, occupation, created_at, account_status, role")
     .eq("id", studentId)
-    .maybeSingle<StudentProfileRecord>();
+    .maybeSingle<AdminDirectoryProfileRecord>();
 
   if (!profile) {
     return null;
@@ -441,7 +554,9 @@ export async function getStudentAdminDetail(studentId: string) {
     .select("id, title")
     .in(
       "id",
-      Array.from(new Set((assignmentRows ?? []).map((assignment: { course_id: string }) => assignment.course_id))),
+      Array.from(new Set((assignmentRows ?? []).map((assignment: { course_id: string }) => assignment.course_id))).length
+        ? Array.from(new Set((assignmentRows ?? []).map((assignment: { course_id: string }) => assignment.course_id)))
+        : [EMPTY_UUID],
     );
 
   const coursesById = new Map<string, { id: string; title: string }>((courseRows ?? []).map((course) => [course.id, course]));
@@ -454,9 +569,51 @@ export async function getStudentAdminDetail(studentId: string) {
     progressByEnrollment.set(enrollment.id, percent);
   }
 
+  const [{ data: tagRows }, { data: availableTagRows }, { data: liveClassRows }] = await Promise.all([
+    supabase.from("user_tags").select("profile_id, created_at, tags(id, name, color, category, source, system_key)").eq("profile_id", studentId),
+    supabase
+      .from("tags")
+      .select("id, name, color, category, source, system_key")
+      .is("archived_at", null)
+      .order("source", { ascending: true })
+      .order("category", { ascending: true })
+      .order("name", { ascending: true }),
+    supabase
+      .from("live_classes")
+      .select("id, course_id, cohort_id, instructor_profile_id, title, starts_at, duration_minutes, meeting_url, status")
+      .in("course_id", courseIds.length ? courseIds : [EMPTY_UUID])
+      .gte("starts_at", new Date().toISOString())
+      .order("starts_at", { ascending: true }),
+  ]);
+
+  const normalizedAvailableTags = ((availableTagRows ?? []) as Record<string, unknown>[]).map(normalizeTagRecord);
+  const profileTags = groupTagsByProfile(((tagRows ?? []) as Record<string, unknown>[]).map(normalizeUserTagRecord)).get(studentId) ?? [];
+  const normalizedLiveClasses = (liveClassRows ?? []) as LiveClassRecord[];
+  const instructorIds = toUniqueIds(normalizedLiveClasses.map((liveClass) => liveClass.instructor_profile_id));
+  const liveClassCohortIds = toUniqueIds(normalizedLiveClasses.map((liveClass) => liveClass.cohort_id));
+  const liveClassCourseIds = toUniqueIds(normalizedLiveClasses.map((liveClass) => liveClass.course_id));
+  const [{ data: liveCourseRows }, { data: liveInstructorRows }, { data: liveCohortRows }] = await Promise.all([
+    supabase.from("courses").select("id, title").in("id", liveClassCourseIds.length ? liveClassCourseIds : [EMPTY_UUID]),
+    supabase
+      .from("profiles")
+      .select("id, first_name, last_name, display_name")
+      .in("id", instructorIds.length ? instructorIds : [EMPTY_UUID]),
+    supabase.from("cohorts").select("id, name").in("id", liveClassCohortIds.length ? liveClassCohortIds : [EMPTY_UUID]),
+  ]);
+  const liveCoursesById = new Map<string, { id: string; title: string }>((liveCourseRows ?? []).map((course) => [course.id, course]));
+  const instructorsById = new Map<string, { id: string; first_name: string; last_name: string; display_name: string | null }>(
+    (liveInstructorRows ?? []).map((row) => [row.id, row]),
+  );
+  const cohortsById = new Map<string, { id: string; name: string }>((liveCohortRows ?? []).map((row) => [row.id, row]));
+  const relevantLiveClasses = normalizedLiveClasses.filter((liveClass) => {
+    return enrollments.some((enrollment) => enrollment.course_id === liveClass.course_id && (!liveClass.cohort_id || liveClass.cohort_id === enrollment.cohort_id));
+  });
+
   return {
     profile,
     lastActivityAt: lastActivity.get(studentId) ?? null,
+    tags: profileTags,
+    availableTags: normalizedAvailableTags,
     enrollments: enrollments.map((enrollment) => ({
       ...enrollment,
       progressPercentage: progressByEnrollment.get(enrollment.id) ?? 0,
@@ -469,6 +626,16 @@ export async function getStudentAdminDetail(studentId: string) {
         ...submission,
         assignment,
         course: assignment ? coursesById.get(assignment.course_id) ?? null : null,
+      };
+    }),
+    liveClasses: relevantLiveClasses.map((liveClass) => {
+      const instructor = instructorsById.get(liveClass.instructor_profile_id) ?? null;
+      return {
+        ...liveClass,
+        course: liveCoursesById.get(liveClass.course_id) ?? null,
+        cohort: liveClass.cohort_id ? cohortsById.get(liveClass.cohort_id) ?? null : null,
+        instructor_name:
+          instructor?.display_name?.trim() || `${instructor?.first_name ?? "Equipo"} ${instructor?.last_name ?? "UniCourse"}`.trim(),
       };
     }),
   };
@@ -490,7 +657,29 @@ export async function listAdmins(search?: string) {
   }
 
   const { data } = await query;
-  return data ?? [];
+  const admins = data ?? [];
+  const adminIds = admins.map((admin) => admin.id);
+  const { data: auditRows } = await supabase
+    .from("admin_audit_logs")
+    .select("target_user_id, action, created_at")
+    .in("target_user_id", adminIds.length ? adminIds : [EMPTY_UUID])
+    .in("action", ["bootstrap_super_admin", "user_promoted_to_admin"])
+    .order("created_at", { ascending: false });
+
+  const assignedAtByAdminId = new Map<string, string>();
+
+  for (const row of auditRows ?? []) {
+    if (!row.target_user_id || assignedAtByAdminId.has(row.target_user_id)) {
+      continue;
+    }
+
+    assignedAtByAdminId.set(row.target_user_id, row.created_at);
+  }
+
+  return admins.map((admin) => ({
+    ...admin,
+    assigned_at: assignedAtByAdminId.get(admin.id) ?? admin.created_at,
+  }));
 }
 
 export async function listStudentsForRoleManagement(search?: string) {
@@ -708,4 +897,232 @@ export async function getStudentEnrollmentOptions(studentId: string) {
   const existingCourseIds = new Set((existing ?? []).map((row) => row.course_id));
 
   return (courses ?? []).filter((course) => !existingCourseIds.has(course.id));
+}
+
+export async function getAdminTagOptions() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("tags")
+    .select("id, name, color, category, source, system_key")
+    .is("archived_at", null)
+    .order("source", { ascending: true })
+    .order("category", { ascending: true })
+    .order("name", { ascending: true });
+
+  return ((data ?? []) as Record<string, unknown>[]).map(normalizeTagRecord);
+}
+
+export async function getAdminRegionOptions() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("tags")
+    .select("id, name, color, category, source, system_key")
+    .eq("source", "automatic")
+    .eq("category", "region")
+    .is("archived_at", null)
+    .order("name", { ascending: true });
+
+  return ((data ?? []) as Record<string, unknown>[]).map(normalizeTagRecord);
+}
+
+export async function listAdminProfiles(params: {
+  q?: string;
+  courseId?: string;
+  country?: string;
+  regionTagId?: string;
+  ageRange?: string;
+  role?: string;
+  accountStatus?: string;
+  tagId?: string;
+  page?: number;
+  pageSize?: number;
+}) {
+  const supabase = await createClient();
+  const page = Math.max(params.page ?? 1, 1);
+  const pageSize = params.pageSize ?? 12;
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const searchPattern = getSearchPattern(params.q);
+  let filteredProfileIds: string[] | null = null;
+
+  if (params.courseId) {
+    const { data: matchingEnrollments } = await supabase
+      .from("enrollments")
+      .select("student_profile_id")
+      .eq("course_id", params.courseId);
+
+    filteredProfileIds = intersectIds(filteredProfileIds, (matchingEnrollments ?? []).map((row) => row.student_profile_id));
+  }
+
+  if (params.tagId) {
+    const { data: taggedRows } = await supabase
+      .from("user_tags")
+      .select("profile_id")
+      .eq("tag_id", params.tagId);
+
+    filteredProfileIds = intersectIds(filteredProfileIds, (taggedRows ?? []).map((row) => row.profile_id));
+  }
+
+  if (params.regionTagId) {
+    const { data: regionRows } = await supabase
+      .from("user_tags")
+      .select("profile_id")
+      .eq("tag_id", params.regionTagId);
+
+    filteredProfileIds = intersectIds(filteredProfileIds, (regionRows ?? []).map((row) => row.profile_id));
+  }
+
+  if (filteredProfileIds && !filteredProfileIds.length) {
+    return {
+      profiles: [],
+      totalCount: 0,
+      page,
+      pageSize,
+    };
+  }
+
+  let query = supabase
+    .from("profiles")
+    .select("id, first_name, last_name, display_name, email, country, phone, age_range, date_of_birth, occupation, created_at, account_status, role", {
+      count: "exact",
+    })
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (searchPattern) {
+    query = query.or(`email.ilike.${searchPattern},first_name.ilike.${searchPattern},last_name.ilike.${searchPattern}`);
+  }
+
+  if (params.country) {
+    query = query.eq("country", params.country);
+  }
+
+  if (params.ageRange) {
+    query = query.eq("age_range", params.ageRange);
+  }
+
+  if (params.role) {
+    query = query.eq("role", params.role);
+  }
+
+  if (params.accountStatus) {
+    query = query.eq("account_status", params.accountStatus);
+  }
+
+  if (filteredProfileIds) {
+    query = query.in("id", filteredProfileIds);
+  }
+
+  const { data: profiles, count } = await query;
+  const normalizedProfiles = ((profiles ?? []) as Record<string, unknown>[]).map(normalizeAdminDirectoryProfileRecord);
+  const profileIds = normalizedProfiles.map((profile) => profile.id);
+
+  if (!profileIds.length) {
+    return {
+      profiles: [],
+      totalCount: count ?? 0,
+      page,
+      pageSize,
+    };
+  }
+
+  const [{ data: enrollmentRows }, { data: userTagRows }] = await Promise.all([
+    supabase
+      .from("enrollments")
+      .select("id, student_profile_id, course_id, status, access_state, courses(id, title)")
+      .in("student_profile_id", profileIds)
+      .order("enrolled_at", { ascending: false }),
+    supabase.from("user_tags").select("profile_id, created_at, tags(id, name, color, category, source, system_key)").in("profile_id", profileIds),
+  ]);
+
+  const enrollments = ((enrollmentRows ?? []) as Record<string, unknown>[]).map(normalizeEnrollmentRecord);
+  const tagsByProfile = groupTagsByProfile(((userTagRows ?? []) as Record<string, unknown>[]).map(normalizeUserTagRecord));
+  const enrollmentsByProfile = new Map<
+    string,
+    Array<{
+      id: string;
+      course_id: string;
+      status: string;
+      access_state: string;
+      title: string;
+    }>
+  >();
+
+  for (const enrollment of enrollments) {
+    const current = enrollmentsByProfile.get(enrollment.student_profile_id) ?? [];
+    current.push({
+      id: enrollment.id,
+      course_id: enrollment.course_id,
+      status: enrollment.status,
+      access_state: enrollment.access_state,
+      title: enrollment.courses?.title ?? "Curso sin título",
+    });
+    enrollmentsByProfile.set(enrollment.student_profile_id, current);
+  }
+
+  return {
+    profiles: normalizedProfiles.map((profile) => {
+      const profileEnrollments = enrollmentsByProfile.get(profile.id) ?? [];
+
+      return {
+        ...profile,
+        courseCount: profileEnrollments.length,
+        enrollments: profileEnrollments,
+        tags: tagsByProfile.get(profile.id) ?? [],
+      };
+    }),
+    totalCount: count ?? 0,
+    page,
+    pageSize,
+  };
+}
+
+export async function getAdminLiveClassSnapshot(limit = 6) {
+  const supabase = await createClient();
+  const nowIso = new Date().toISOString();
+
+  const [{ count: publishedCount }, { count: draftCount }, { count: upcomingCount }, { data: liveClassRows }] = await Promise.all([
+    supabase.from("live_classes").select("*", { count: "exact", head: true }).eq("status", "published"),
+    supabase.from("live_classes").select("*", { count: "exact", head: true }).eq("status", "draft"),
+    supabase.from("live_classes").select("*", { count: "exact", head: true }).eq("status", "published").gte("starts_at", nowIso),
+    supabase
+      .from("live_classes")
+      .select("id, course_id, cohort_id, instructor_profile_id, title, starts_at, duration_minutes, meeting_url, status")
+      .gte("starts_at", nowIso)
+      .order("starts_at", { ascending: true })
+      .limit(limit),
+  ]);
+
+  const liveClasses = (liveClassRows ?? []) as LiveClassRecord[];
+  const courseIds = toUniqueIds(liveClasses.map((liveClass) => liveClass.course_id));
+  const cohortIds = toUniqueIds(liveClasses.map((liveClass) => liveClass.cohort_id));
+  const instructorIds = toUniqueIds(liveClasses.map((liveClass) => liveClass.instructor_profile_id));
+
+  const [{ data: courseRows }, { data: cohortRows }, { data: instructorRows }] = await Promise.all([
+    supabase.from("courses").select("id, title").in("id", courseIds.length ? courseIds : [EMPTY_UUID]),
+    supabase.from("cohorts").select("id, name").in("id", cohortIds.length ? cohortIds : [EMPTY_UUID]),
+    supabase.from("profiles").select("id, first_name, last_name, display_name").in("id", instructorIds.length ? instructorIds : [EMPTY_UUID]),
+  ]);
+
+  const coursesById = new Map<string, { id: string; title: string }>((courseRows ?? []).map((course) => [course.id, course]));
+  const cohortsById = new Map<string, { id: string; name: string }>((cohortRows ?? []).map((cohort) => [cohort.id, cohort]));
+  const instructorsById = new Map<string, { id: string; first_name: string; last_name: string; display_name: string | null }>(
+    (instructorRows ?? []).map((row) => [row.id, row]),
+  );
+
+  return {
+    publishedCount: publishedCount ?? 0,
+    draftCount: draftCount ?? 0,
+    upcomingCount: upcomingCount ?? 0,
+    classes: liveClasses.map((liveClass) => {
+      const instructor = instructorsById.get(liveClass.instructor_profile_id) ?? null;
+      return {
+        ...liveClass,
+        course: coursesById.get(liveClass.course_id) ?? null,
+        cohort: liveClass.cohort_id ? cohortsById.get(liveClass.cohort_id) ?? null : null,
+        instructor_name:
+          instructor?.display_name?.trim() || `${instructor?.first_name ?? "Equipo"} ${instructor?.last_name ?? "UniCourse"}`.trim(),
+      };
+    }),
+  };
 }

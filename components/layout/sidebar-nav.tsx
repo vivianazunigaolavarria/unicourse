@@ -16,7 +16,10 @@ export function SidebarNav({ items }: SidebarNavProps) {
   return (
     <nav className="grid gap-2">
       {items.map((item) => {
-        const isActive = pathname === item.href;
+        const isActive =
+          item.match === "startsWith"
+            ? pathname === item.href || pathname.startsWith(`${item.href}/`)
+            : pathname === item.href;
 
         return (
           <Link
@@ -34,4 +37,3 @@ export function SidebarNav({ items }: SidebarNavProps) {
     </nav>
   );
 }
-

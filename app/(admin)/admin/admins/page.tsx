@@ -25,7 +25,7 @@ const adminNoticeMessages: Record<string, { title: string; description: string; 
 };
 
 export default async function AdminsPage({ searchParams }: AdminsPageProps) {
-  const viewer = await requireSuperAdminViewer("/admin/admins");
+  const viewer = await requireSuperAdminViewer("/admin/administradores");
   const params = (await searchParams) ?? {};
   const q = readSearchParam(params.q) ?? "";
   const noticeCode = readSearchParam(params.notice);
@@ -73,7 +73,7 @@ export default async function AdminsPage({ searchParams }: AdminsPageProps) {
                     <StatusChip tone={admin.role === "super_admin" ? "violet" : "teal"}>
                       {formatRoleLabel(admin.role)}
                     </StatusChip>
-                    <span className="text-sm text-[var(--uc-muted)]">Desde {formatDate(admin.created_at)}</span>
+                    <span className="text-sm text-[var(--uc-muted)]">Asignado desde {formatDate(admin.assigned_at)}</span>
                   </div>
                   <h3 className="font-heading text-2xl">
                     {admin.display_name?.trim() || `${admin.first_name} ${admin.last_name}`}
@@ -85,7 +85,7 @@ export default async function AdminsPage({ searchParams }: AdminsPageProps) {
                     <p className="text-sm text-[var(--uc-muted)]">Cuenta protegida</p>
                   ) : (
                     <form action={changeUserRoleAction} className="w-full">
-                      <input name="return_to" type="hidden" value="/admin/admins" />
+                      <input name="return_to" type="hidden" value="/admin/administradores" />
                       <input name="target_profile_id" type="hidden" value={admin.id} />
                       <input name="target_role" type="hidden" value="student" />
                       <input name="reason" type="hidden" value="Democión desde el panel de super admin." />
@@ -117,7 +117,7 @@ export default async function AdminsPage({ searchParams }: AdminsPageProps) {
                   <p className="text-sm text-[var(--uc-muted)]">{student.email}</p>
                 </div>
                 <form action={changeUserRoleAction} className="flex items-center">
-                  <input name="return_to" type="hidden" value="/admin/admins" />
+                  <input name="return_to" type="hidden" value="/admin/administradores" />
                   <input name="target_profile_id" type="hidden" value={student.id} />
                   <input name="target_role" type="hidden" value="admin" />
                   <input name="reason" type="hidden" value="Promoción desde el panel de super admin." />

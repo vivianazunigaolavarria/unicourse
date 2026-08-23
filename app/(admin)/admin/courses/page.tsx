@@ -48,7 +48,7 @@ export default async function AdminCoursesPage({ searchParams }: AdminCoursesPag
               Aquí ya no hay fixtures: ves cursos guardados en Supabase y puedes abrir nuevos borradores desde el panel.
             </p>
           </div>
-          <Link className="uc-button-primary" href="/admin/courses/new">
+          <Link className="uc-button-primary" href="/admin/cursos/nuevo">
             Crear curso
           </Link>
         </div>
@@ -83,7 +83,7 @@ export default async function AdminCoursesPage({ searchParams }: AdminCoursesPag
           title="Todavía no hay cursos con esos filtros"
           description="Crea un nuevo curso o amplia la búsqueda para ver más resultados."
           action={
-            <Link className="uc-button-primary" href="/admin/courses/new">
+            <Link className="uc-button-primary" href="/admin/cursos/nuevo">
               Crear curso
             </Link>
           }
@@ -121,10 +121,10 @@ export default async function AdminCoursesPage({ searchParams }: AdminCoursesPag
           Página {results.page} de {totalPages}
         </p>
         <div className="flex gap-3">
-          <Link className="uc-button-secondary" href={withQuery("/admin/courses", { q, status, page: String(Math.max(1, results.page - 1)) })}>
+          <Link className="uc-button-secondary" href={withQuery("/admin/cursos", { q, status, page: String(Math.max(1, results.page - 1)) })}>
             Anterior
           </Link>
-          <Link className="uc-button-primary" href={withQuery("/admin/courses", { q, status, page: String(Math.min(totalPages, results.page + 1)) })}>
+          <Link className="uc-button-primary" href={withQuery("/admin/cursos", { q, status, page: String(Math.min(totalPages, results.page + 1)) })}>
             Siguiente
           </Link>
         </div>

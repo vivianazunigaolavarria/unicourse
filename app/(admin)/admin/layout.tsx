@@ -28,6 +28,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
                 ? "Puedes gestionar admins, cursos, accesos y revisar todo el historial."
                 : "Puedes revisar alumnas, cursos y entregas desde este panel.",
           }}
+          quickLinks={[
+            {
+              href: "/dashboard",
+              label: "Ir a mi experiencia de estudiante",
+              variant: "secondary",
+            },
+          ]}
         />
       }
     >

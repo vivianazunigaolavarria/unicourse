@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { SignOutForm } from "@/components/auth/sign-out-form";
 import { StatusChip } from "@/components/ui/status-chip";
 import { formatAccountStatusLabel, formatRoleLabel } from "@/lib/labels";
@@ -10,9 +12,14 @@ type SessionRailProps = {
     label: string;
     value: string;
   } | null;
+  quickLinks?: Array<{
+    href: string;
+    label: string;
+    variant?: "primary" | "secondary";
+  }>;
 };
 
-export function SessionRail({ viewer, variant, highlight }: SessionRailProps) {
+export function SessionRail({ viewer, variant, highlight, quickLinks }: SessionRailProps) {
   return (
     <div className="grid gap-3">
       <div className="rounded-[24px] border border-[var(--uc-border)] bg-[rgba(255,255,255,0.82)] p-4">
@@ -31,6 +38,21 @@ export function SessionRail({ viewer, variant, highlight }: SessionRailProps) {
         <div className="rounded-[24px] border border-[var(--uc-border)] bg-[rgba(47,169,143,0.08)] p-4">
           <p className="uc-kicker">{highlight.label}</p>
           <p className="mt-2 text-sm font-medium leading-6 text-[var(--uc-ink)]">{highlight.value}</p>
+        </div>
+      ) : null}
+
+      {quickLinks?.length ? (
+        <div className="grid gap-3 rounded-[24px] border border-[var(--uc-border)] bg-[rgba(255,255,255,0.82)] p-4">
+          <p className="uc-kicker">Cambio rápido</p>
+          {quickLinks.map((link) => (
+            <Link
+              key={link.href}
+              className={link.variant === "primary" ? "uc-button-primary justify-center" : "uc-button-secondary justify-center"}
+              href={link.href}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
       ) : null}
 

@@ -3,6 +3,7 @@ import type { UserRole } from "@/lib/profile";
 export type NavItem = {
   href: string;
   label: string;
+  match?: "exact" | "startsWith";
 };
 
 export type StudentNavIcon =
@@ -52,14 +53,16 @@ export function getStudentNavigation(role: UserRole): StudentNavigationConfig {
 
   if (role === "admin" || role === "super_admin") {
     administrationItems.push(
-      { href: "/admin/students", label: "Alumnas", icon: "students", match: "startsWith" },
-      { href: "/admin/courses", label: "Cursos", icon: "course-admin", match: "startsWith" },
-      { href: "/admin/submissions", label: "Entregas", icon: "submissions", match: "startsWith" },
+      { href: "/admin", label: "Resumen", icon: "home" },
+      { href: "/admin/alumnas", label: "Alumnas", icon: "students", match: "startsWith" },
+      { href: "/admin/cursos", label: "Cursos", icon: "course-admin", match: "startsWith" },
+      { href: "/admin/sesiones-en-vivo", label: "Sesiones en vivo", icon: "live", match: "startsWith" },
+      { href: "/admin/entregas", label: "Entregas", icon: "submissions", match: "startsWith" },
     );
   }
 
   if (role === "super_admin") {
-    administrationItems.push({ href: "/admin/admins", label: "Administradores", icon: "admins", match: "startsWith" });
+    administrationItems.push({ href: "/admin/administradores", label: "Administradores", icon: "admins", match: "startsWith" });
   }
 
   return {
@@ -78,13 +81,14 @@ export function getStudentNavigation(role: UserRole): StudentNavigationConfig {
 export function getAdminNavigation(role: "admin" | "super_admin") {
   const items: NavItem[] = [
     { href: "/admin", label: "Resumen" },
-    { href: "/admin/students", label: "Alumnas" },
-    { href: "/admin/courses", label: "Cursos" },
-    { href: "/admin/submissions", label: "Entregas" },
+    { href: "/admin/alumnas", label: "Alumnas", match: "startsWith" },
+    { href: "/admin/cursos", label: "Cursos", match: "startsWith" },
+    { href: "/admin/sesiones-en-vivo", label: "Sesiones en vivo", match: "startsWith" },
+    { href: "/admin/entregas", label: "Entregas", match: "startsWith" },
   ];
 
   if (role === "super_admin") {
-    items.push({ href: "/admin/admins", label: "Admins" });
+    items.push({ href: "/admin/administradores", label: "Administradores", match: "startsWith" });
   }
 
   return items;

@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
+export { default } from "@/app/(admin)/admin/courses/page";
 
-export default function LegacyAdminCoursesPage() {
-  redirect("/admin/courses");
-}
+export const dynamic = "force-dynamic";

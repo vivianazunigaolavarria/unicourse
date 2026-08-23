@@ -113,10 +113,10 @@ export default async function AdminSubmissionsPage({ searchParams }: AdminSubmis
           Página {results.page} de {totalPages}
         </p>
         <div className="flex gap-3">
-          <Link className="uc-button-secondary" href={withQuery("/admin/submissions", { q, courseId, reviewStatus, page: String(Math.max(1, results.page - 1)) })}>
+          <Link className="uc-button-secondary" href={withQuery("/admin/entregas", { q, courseId, reviewStatus, page: String(Math.max(1, results.page - 1)) })}>
             Anterior
           </Link>
-          <Link className="uc-button-primary" href={withQuery("/admin/submissions", { q, courseId, reviewStatus, page: String(Math.min(totalPages, results.page + 1)) })}>
+          <Link className="uc-button-primary" href={withQuery("/admin/entregas", { q, courseId, reviewStatus, page: String(Math.min(totalPages, results.page + 1)) })}>
             Siguiente
           </Link>
         </div>

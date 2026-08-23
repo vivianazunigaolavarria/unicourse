@@ -126,7 +126,7 @@ export async function requireAdminViewer(nextPath = "/admin") {
   return viewer;
 }
 
-export async function requireSuperAdminViewer(nextPath = "/admin/admins") {
+export async function requireSuperAdminViewer(nextPath = "/admin/administradores") {
   const viewer = await requireAdminViewer(nextPath);
 
   if (viewer.role !== "super_admin") {
