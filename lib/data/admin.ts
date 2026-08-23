@@ -93,9 +93,14 @@ type LiveClassRecord = {
   cohort_id: string | null;
   instructor_profile_id: string;
   title: string;
+  description: string;
   starts_at: string;
   duration_minutes: number;
   meeting_url: string | null;
+  google_calendar_event_id?: string | null;
+  google_calendar_html_link?: string | null;
+  student_invite_count?: number;
+  calendar_last_synced_at?: string | null;
   status: string;
 };
 
@@ -386,6 +391,25 @@ export async function getAdminCourseOptions() {
   const supabase = await createClient();
   const { data } = await supabase.from("courses").select("id, title").order("title");
   return data ?? [];
+}
+
+export async function getAdminLiveClassFormOptions() {
+  const supabase = await createClient();
+  const [{ data: courseRows }, { data: cohortRows }] = await Promise.all([
+    supabase.from("courses").select("id, title, status").in("status", ["draft", "published"]).order("title"),
+    supabase.from("cohorts").select("id, course_id, name").order("name"),
+  ]);
+
+  const courses = (courseRows ?? []) as Array<{ id: string; title: string; status: string }>;
+  const courseTitleById = new Map(courses.map((course) => [course.id, course.title]));
+
+  return {
+    courses,
+    cohorts: (cohortRows ?? []).map((cohort) => ({
+      ...cohort,
+      courseTitle: courseTitleById.get(cohort.course_id) ?? "Curso",
+    })),
+  };
 }
 
 export async function getAdminAssignmentOptions(courseId?: string) {
@@ -1114,7 +1138,9 @@ export async function getAdminLiveClassSnapshot(limit = 6) {
     supabase.from("live_classes").select("*", { count: "exact", head: true }).eq("status", "published").gte("starts_at", nowIso),
     supabase
       .from("live_classes")
-      .select("id, course_id, cohort_id, instructor_profile_id, title, starts_at, duration_minutes, meeting_url, status")
+      .select(
+        "id, course_id, cohort_id, instructor_profile_id, title, description, starts_at, duration_minutes, meeting_url, google_calendar_event_id, google_calendar_html_link, student_invite_count, calendar_last_synced_at, status",
+      )
       .gte("starts_at", nowIso)
       .order("starts_at", { ascending: true })
       .limit(limit),
@@ -1147,6 +1173,7 @@ export async function getAdminLiveClassSnapshot(limit = 6) {
         ...liveClass,
         course: coursesById.get(liveClass.course_id) ?? null,
         cohort: liveClass.cohort_id ? cohortsById.get(liveClass.cohort_id) ?? null : null,
+        student_invite_count: liveClass.student_invite_count ?? 0,
         instructor_name:
           instructor?.display_name?.trim() || `${instructor?.first_name ?? "Equipo"} ${instructor?.last_name ?? "UniCourse"}`.trim(),
       };

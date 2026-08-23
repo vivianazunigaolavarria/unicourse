@@ -54,8 +54,14 @@ Copy `.env.example` to `.env.local` and fill in:
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` or `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REFRESH_TOKEN`
+- `GOOGLE_CALENDAR_ID` (optional, defaults to `primary`)
+- `GOOGLE_CALENDAR_TIME_ZONE` (optional, defaults to `America/Mexico_City`)
 
 The app still renders without local env vars, but the real auth and data features require the public Supabase values. The service-role key is only for protected backend or maintenance tasks and must never be exposed in the browser.
+The Google variables are only needed for the admin scheduler that creates Google Meet sessions and sends Calendar invitations to enrolled students.
 
 ## Module 1 highlights
 
@@ -69,6 +75,17 @@ The app still renders without local env vars, but the real auth and data feature
 - `/admin/admins` for the `super_admin`
 - `admin_audit_logs`
 - SQL bootstrap path for the first `super_admin`
+
+## Google Meet scheduling
+
+The admin page `/admin/sesiones-en-vivo` now supports:
+
+- creating a published live class from the admin panel
+- generating a Google Meet automatically through Google Calendar
+- inviting the enrolled students of the selected course or cohort
+- storing the event metadata back in `live_classes`
+
+To make it work in a real environment, the Google account that will own the calendar must grant offline Calendar access and provide a refresh token with Calendar write scope.
 
 ## First super admin
 

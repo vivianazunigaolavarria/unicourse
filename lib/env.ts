@@ -8,6 +8,20 @@ type AdminSupabaseConfig = {
   secretKey: string;
 };
 
+type GoogleCalendarConfig = {
+  clientId: string;
+  clientSecret: string;
+  refreshToken: string;
+  calendarId: string;
+  timeZone: string;
+};
+
+const GOOGLE_CALENDAR_REQUIRED_ENV_KEYS = [
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
+  "GOOGLE_REFRESH_TOKEN",
+] as const;
+
 function readSupabasePublishableKey() {
   return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 }
@@ -57,4 +71,28 @@ export function getSupabaseAdminConfig(): AdminSupabaseConfig | null {
   }
 
   return { url, secretKey };
+}
+
+export function getGoogleCalendarMissingKeys() {
+  return GOOGLE_CALENDAR_REQUIRED_ENV_KEYS.filter((key) => !process.env[key]?.trim());
+}
+
+export function getGoogleCalendarConfig(): GoogleCalendarConfig | null {
+  const missingKeys = getGoogleCalendarMissingKeys();
+
+  if (missingKeys.length > 0) {
+    return null;
+  }
+
+  return {
+    clientId: process.env.GOOGLE_CLIENT_ID!.trim(),
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET!.trim(),
+    refreshToken: process.env.GOOGLE_REFRESH_TOKEN!.trim(),
+    calendarId: process.env.GOOGLE_CALENDAR_ID?.trim() || "primary",
+    timeZone: process.env.GOOGLE_CALENDAR_TIME_ZONE?.trim() || "America/Mexico_City",
+  };
+}
+
+export function isGoogleCalendarConfigured() {
+  return getGoogleCalendarConfig() !== null;
 }
